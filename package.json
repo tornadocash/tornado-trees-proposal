@@ -1,0 +1,42 @@
+{
+  "name": "tornado-trees-proposal",
+  "version": "0.0.1",
+  "main": "src/index.js",
+  "repository": "https://github.com/tornadocash/tornado-trees-proposal.git",
+  "author": "Tornadocash team <hello@tornado.cash>",
+  "license": "MIT",
+  "files": [
+    "src/*",
+    "contracts/*"
+  ],
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "eslint": "eslint --ext .js --ignore-path .gitignore .",
+    "prettier:check": "prettier --check . --config .prettierrc",
+    "prettier:fix": "prettier --write . --config .prettierrc",
+    "lint": "yarn eslint && yarn prettier:check"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "babel-eslint": "^10.1.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "ethereum-waffle": "^3.2.2",
+    "ethers": "^5.0.26",
+    "hardhat": "^2.0.8",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.3",
+    "solhint-plugin-prettier": "^0.0.5"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "fixed-merkle-tree": "^0.5.0",
+    "tornado-anonymity-mining": "^1.0.0",
+    "tornado-trees": "^0.0.4",
+    "torn-token": "^1.0.0"
+  }
+}
