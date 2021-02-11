@@ -34,9 +34,10 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
+    "eth-ens-namehash": "^2.0.8",
     "fixed-merkle-tree": "^0.5.0",
+    "torn-token": "^1.0.0",
     "tornado-anonymity-mining": "^1.0.0",
-    "tornado-trees": "^0.0.4",
-    "torn-token": "^1.0.0"
+    "tornado-trees": "^0.0.4"
   }
 }
