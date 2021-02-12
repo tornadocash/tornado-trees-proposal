@@ -43,10 +43,10 @@ async function getEventCount(addresses, selector, fromBlock) {
 task('searchParams', 'Prints optimal search params for tree updates deployment', async () => {
   const treesAbi = await ethers.getContractFactory('TornadoTrees')
   const trees = treesAbi.attach('0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417')
-  const processedDeposits = await trees.queryFilter('DepositData')
-  const processedWithdrawals = await trees.queryFilter('WithdrawalData')
-  const unprocessedDeposits = await trees.getRegisteredDeposits()
-  const unprocessedWithdrawals = await trees.getRegisteredWithdrawals()
+  const processedDeposits = (await trees.lastProcessedDepositLeaf()).toNumber()
+  const processedWithdrawals = (await trees.lastProcessedWithdrawalLeaf()).toNumber()
+  const unprocessedDeposits = (await trees.getRegisteredDeposits()).length
+  const unprocessedWithdrawals = (await trees.getRegisteredWithdrawals()).length
 
   const instances = [
     '0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc',
@@ -76,11 +76,10 @@ task('searchParams', 'Prints optimal search params for tree updates deployment',
   const withdrawalsPerDay = Math.round(withdrawalCount / days)
 
   console.log({
-    depositsFrom: processedDeposits.length + unprocessedDeposits.length + depositsPerDay * proposalDays,
-    depositsStep: Math.round(depositsPerDay / 10),
-    withdrawalsFrom:
-      processedWithdrawals.length + unprocessedWithdrawals.length + withdrawalsPerDay * proposalDays,
-    withdrawalsStep: Math.round(depositsPerDay / 10),
+    depositsFrom: processedDeposits + unprocessedDeposits + depositsPerDay * proposalDays,
+    depositsStep: Math.round(depositsPerDay / 5),
+    withdrawalsFrom: processedWithdrawals + unprocessedWithdrawals + withdrawalsPerDay * proposalDays,
+    withdrawalsStep: Math.round(withdrawalsPerDay / 5),
   })
 })
 
