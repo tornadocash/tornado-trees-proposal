@@ -2,15 +2,6 @@
 require('dotenv').config()
 require('@nomiclabs/hardhat-waffle')
 const ens = require('eth-ens-namehash')
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async () => {
-  const accounts = await ethers.getSigners()
-
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-})
 
 task('namehashes', 'Prints the list of tornado instances and corresponding ens namehashes', () => {
   const mineable = [
@@ -112,27 +103,20 @@ const config = {
   networks: {
     hardhat: {
       blockGasLimit: 9500000,
+      gasPrice: 0,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+        blockNumber: 11839100,
+      },
     },
-    // mainnet: {
-    //   url: 'https://mainnet.infura.io/v3/',
-    //   accounts: ['0x'],
-    // },
-    // mainnetFork: {
-    //   forking: {
-    //     url: 'https://eth-mainnet.alchemyapi.io/v2/<key>',
-    //     blockNumber: 1000,
-    //   },
-    // },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+      accounts: [process.env.PRIVATE_KEY],
+    },
   },
   mocha: {
     timeout: 600000,
   },
 }
 
-if (process.env.NETWORK) {
-  config.networks[process.env.NETWORK] = {
-    url: `https://${process.env.NETWORK}.infura.io/v3/${process.env.INFURA_TOKEN}`,
-    accounts: [process.env.PRIVATE_KEY],
-  }
-}
 module.exports = config

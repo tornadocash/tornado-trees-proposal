@@ -7,16 +7,20 @@ This repo deploys governance proposal for [TornadoTrees](https://github.com/torn
 1. node 12
 2. yarn
 
-## Start
+## Init
 
 ```bash
 $ yarn
-$ yarn test
+$ cp .env.example .env
+$ vi .env
 ```
 
 ## Mainnet testing
 
 ```bash
-$ npx hardhat node --fork <https://eth-mainnet.alchemyapi.io/v2/API_KEY> --fork-block-number 11827889
 $ npx hardhat test
 ```
+
+## Mainnet deploy
+
+TBD
