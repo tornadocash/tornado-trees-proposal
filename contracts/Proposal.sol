@@ -41,12 +41,7 @@ contract Proposal {
 
     // Deploy new TornadoTrees contract
     TornadoTrees.SearchParams memory searchParams =
-      TornadoTrees.SearchParams({ // todo adjust parameters
-        depositsFrom: 10258,
-        depositsStep: 14,
-        withdrawalsFrom: 7771,
-        withdrawalsStep: 14
-      });
+      TornadoTrees.SearchParams({ depositsFrom: 10258, depositsStep: 14, withdrawalsFrom: 7771, withdrawalsStep: 14 }); // todo adjust parameters
     TornadoTrees tornadoTrees =
       new TornadoTrees(
         address(this),

@@ -72,18 +72,23 @@ task('searchParams', 'Prints optimal search params for tree updates deployment',
   const days = (toDate - fromDate) / (1000 * 60 * 60 * 24)
 
   let depositCount = await getEventCount(instances, 'Deposit(bytes32,uint32,uint256)', fromBlock)
-  let withdrawalCount = await getEventCount(instances, 'Withdrawal(address,bytes32,address,uint256)', fromBlock)
+  let withdrawalCount = await getEventCount(
+    instances,
+    'Withdrawal(address,bytes32,address,uint256)',
+    fromBlock,
+  )
 
   console.log('Found', depositCount, 'deposits from', fromDate, 'in', days, 'days')
   console.log('Found', withdrawalCount, 'withdrawals from', fromDate, 'in', days, 'days')
 
-  const depositsPerDay = Math.round(depositCount / days);
-  const withdrawalsPerDay = Math.round(withdrawalCount / days);
+  const depositsPerDay = Math.round(depositCount / days)
+  const withdrawalsPerDay = Math.round(withdrawalCount / days)
 
   console.log({
     depositsFrom: processedDeposits.length + unprocessedDeposits.length + depositsPerDay * proposalDays,
     depositsStep: Math.round(depositsPerDay / 10),
-    withdrawalsFrom: processedWithdrawals.length + unprocessedWithdrawals.length + withdrawalsPerDay * proposalDays,
+    withdrawalsFrom:
+      processedWithdrawals.length + unprocessedWithdrawals.length + withdrawalsPerDay * proposalDays,
     withdrawalsStep: Math.round(depositsPerDay / 10),
   })
 })
