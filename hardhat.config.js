@@ -1,7 +1,7 @@
 /* global task, ethers */
+require('dotenv').config()
 require('@nomiclabs/hardhat-waffle')
 const ens = require('eth-ens-namehash')
-require('dotenv').config()
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async () => {
@@ -38,6 +38,56 @@ task('namehashes', 'Prints the list of tornado instances and corresponding ens n
   })
 })
 
+async function getEventCount(addresses, selector, fromBlock) {
+  const events = addresses.map((address) =>
+    ethers.provider.getLogs({
+      address,
+      fromBlock,
+      topics: [ethers.utils.id(selector)],
+    }),
+  )
+  return (await Promise.all(events)).reduce((sum, e) => (sum += e.length), 0)
+}
+
+task('searchParams', 'Prints optimal search params for tree updates deployment', async () => {
+  const treesAbi = await ethers.getContractFactory('TornadoTrees')
+  const trees = treesAbi.attach('0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417')
+  const processedDeposits = await trees.queryFilter('DepositData')
+  const processedWithdrawals = await trees.queryFilter('WithdrawalData')
+  const unprocessedDeposits = await trees.getRegisteredDeposits()
+  const unprocessedWithdrawals = await trees.getRegisteredWithdrawals()
+
+  const instances = [
+    '0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc',
+    '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936',
+    '0x910Cbd523D972eb0a6f4cAe4618aD62622b39DbF',
+    '0xA160cdAB225685dA1d56aa342Ad8841c3b53f291',
+  ]
+
+  const proposalDays = 5
+  const fromBlock = 11750000
+
+  const fromDate = new Date((await ethers.provider.getBlock(fromBlock)).timestamp * 1000)
+  const toDate = new Date((await ethers.provider.getBlock('latest')).timestamp * 1000)
+  const days = (toDate - fromDate) / (1000 * 60 * 60 * 24)
+
+  let depositCount = await getEventCount(instances, 'Deposit(bytes32,uint32,uint256)', fromBlock)
+  let withdrawalCount = await getEventCount(instances, 'Withdrawal(address,bytes32,address,uint256)', fromBlock)
+
+  console.log('Found', depositCount, 'deposits from', fromDate, 'in', days, 'days')
+  console.log('Found', withdrawalCount, 'withdrawals from', fromDate, 'in', days, 'days')
+
+  const depositsPerDay = Math.round(depositCount / days);
+  const withdrawalsPerDay = Math.round(withdrawalCount / days);
+
+  console.log({
+    depositsFrom: processedDeposits.length + unprocessedDeposits.length + depositsPerDay * proposalDays,
+    depositsStep: Math.round(depositsPerDay / 10),
+    withdrawalsFrom: processedWithdrawals.length + unprocessedWithdrawals.length + withdrawalsPerDay * proposalDays,
+    withdrawalsStep: Math.round(depositsPerDay / 10),
+  })
+})
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -50,7 +100,7 @@ const config = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200,
+        runs: 1,
       },
     },
   },
@@ -58,6 +108,16 @@ const config = {
     hardhat: {
       blockGasLimit: 9500000,
     },
+    // mainnet: {
+    //   url: 'https://mainnet.infura.io/v3/',
+    //   accounts: ['0x'],
+    // },
+    // mainnetFork: {
+    //   forking: {
+    //     url: 'https://eth-mainnet.alchemyapi.io/v2/<key>',
+    //     blockNumber: 1000,
+    //   },
+    // },
   },
   mocha: {
     timeout: 600000,

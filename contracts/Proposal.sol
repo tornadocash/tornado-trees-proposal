@@ -1,3 +1,12 @@
+/*
+
+This is a proposal to update TornadoTrees smart contract
+
+// todo update description and forum link
+More info: https://torn.community/t/anonymity-mining-technical-overview/15/18
+
+*/
+
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
@@ -22,23 +31,26 @@ contract Proposal {
       tornadoProxyV1.updateInstance(miningInstances[i], false);
     }
 
+    // Deploy snark verifier form the merkle tree updates
     BatchTreeUpdateVerifier verifier = new BatchTreeUpdateVerifier();
 
+    // Find current governance contract nonce and calculate TornadoProxy
+    // expected address to solve circular dependency
     uint256 nonce = findNextNonce(address(this), address(verifier), 0);
-    address tornadoProxyAddress = computeAddress(address(this), nonce + 1);
+    address tornadoProxyExpectedAddress = computeAddress(address(this), nonce + 1);
 
     // Deploy new TornadoTrees contract
     TornadoTrees.SearchParams memory searchParams =
       TornadoTrees.SearchParams({ // todo adjust parameters
-        unprocessedDeposits: 8000,
-        unprocessedWithdrawals: 8000,
-        depositsPerDay: 50,
-        withdrawalsPerDay: 50
+        depositsFrom: 10258,
+        depositsStep: 14,
+        withdrawalsFrom: 7771,
+        withdrawalsStep: 14
       });
     TornadoTrees tornadoTrees =
       new TornadoTrees(
         address(this),
-        tornadoProxyAddress,
+        tornadoProxyExpectedAddress,
         tornadoTreesV1,
         IBatchTreeUpdateVerifier(address(verifier)),
         searchParams
@@ -47,10 +59,10 @@ contract Proposal {
     // Deploy new TornadoProxy
     TornadoProxy proxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
 
-    // Update TornadoTrees address on mining contract
+    // Update TornadoTrees address on the mining contract
     miner.setTornadoTreesContract(address(tornadoTrees));
 
-    // Make sure that contract addresses are resolved correctly
+    // Make sure that contract addresses are set correctly
     require(address(proxy.tornadoTrees()) == address(tornadoTrees), "tornadoTrees deployed to an unexpected address");
     require(address(tornadoTrees.tornadoProxy()) == address(proxy), "tornadoProxy deployed to an unexpected address");
   }
@@ -66,16 +78,10 @@ contract Proposal {
 
   function getInstances() public pure returns (TornadoProxy.Instance[] memory instances) {
     // another approach
-    // instances = [
-    //   TornadoProxy.Instance({
-    //     instance: bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a),
-    //     state: TornadoProxy.InstanceState.Mineable
-    //   }),
-    //   TornadoProxy.Instance({
-    //     instance: bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b),
-    //     state: TornadoProxy.InstanceState.Mineable
-    //   })
-    // ];
+    //     instances = [
+    //       TornadoProxy.Instance({ instance: bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a), state: TornadoProxy.InstanceState.Mineable }),
+    //       TornadoProxy.Instance({ instance: bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b), state: TornadoProxy.InstanceState.Mineable })
+    //     ];
     bytes32[4] memory miningInstances =
       [
         bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a),
@@ -104,6 +110,10 @@ contract Proposal {
     }
   }
 
+  /// @dev find the contract nonce
+  /// @param _deployer deploying (current) contract
+  /// @param _lastDeployed address of the last deployed contract
+  /// @param _start initial nonce to start search from
   function findNextNonce(
     address _deployer,
     address _lastDeployed,
@@ -115,6 +125,7 @@ contract Proposal {
     return _start + 1;
   }
 
+  /// @dev compute smart contract expected deploy address
   function computeAddress(address _origin, uint256 _nonce) public pure returns (address) {
     bytes memory data;
     if (_nonce == 0x00) data = abi.encodePacked(bytes1(0xd6), bytes1(0x94), _origin, bytes1(0x80));
