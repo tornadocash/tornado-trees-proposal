@@ -24,6 +24,8 @@ contract Proposal {
   ITornadoProxyV1 public constant tornadoProxyV1 = ITornadoProxyV1(0x905b63Fff465B9fFBF41DeA908CEb12478ec7601);
   IMiner public constant miner = IMiner(0x746Aebc06D2aE31B71ac51429A19D54E797878E9);
 
+  event Deployed(address _contract);
+
   function executeProposal() public {
     // Disable registering new deposits on old tornado proxy
     address[4] memory miningInstances = getEthInstances();
@@ -33,6 +35,7 @@ contract Proposal {
 
     // Deploy snark verifier form the merkle tree updates
     BatchTreeUpdateVerifier verifier = new BatchTreeUpdateVerifier();
+    emit Deployed(address(verifier));
 
     // Find current governance contract nonce and calculate TornadoProxy
     // expected address to solve circular dependency
@@ -50,9 +53,11 @@ contract Proposal {
         IBatchTreeUpdateVerifier(address(verifier)),
         searchParams
       );
+    emit Deployed(address(tornadoTrees));
 
     // Deploy new TornadoProxy
     TornadoProxy proxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
+    emit Deployed(address(proxy));
 
     // Update TornadoTrees address on the mining contract
     miner.setTornadoTreesContract(address(tornadoTrees));
@@ -85,7 +90,8 @@ contract Proposal {
         bytes32(0xddfc726d74f912f49389ef7471e75291969852ce7e5df0509a17bc1e46646985)
       ];
 
-    bytes32[7] memory allowedInstances =
+    // todo should we add more instances? usdt-100000 ?
+    bytes32[8] memory allowedInstances =
       [
         bytes32(0x95ad5771ba164db3fc73cc74d4436cb6a6babd7a2774911c69d8caae30410982),
         bytes32(0x109d0334da83a2c3a687972cc806b0eda52ee7a30f3e44e77b39ae2a20248321),
@@ -93,7 +99,8 @@ contract Proposal {
         bytes32(0xf840ad6cba4dbbab0fa58a13b092556cd53a6eeff716a3c4a41d860a888b6155),
         bytes32(0xd49809328056ea7b7be70076070bf741ec1a27b86bebafdc484eee88c1834191),
         bytes32(0x77e2b15eddc494b6da6cee0d797ed30ed3945f2c7de0150f16f0405a12e5665f),
-        bytes32(0x36bab2c045f88613be6004ec1dc0c3937941fcf4d4cb78d814c933bf1cf25baf)
+        bytes32(0x36bab2c045f88613be6004ec1dc0c3937941fcf4d4cb78d814c933bf1cf25baf),
+        bytes32(0x7a3b0883165756c26821d9b8c9737166a156a78b478b17e42da72fba7a373356)
       ];
     instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
 

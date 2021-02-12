@@ -18,6 +18,7 @@ task('namehashes', 'Prints the list of tornado instances and corresponding ens n
     'usdc-100.tornadocash.eth',
     'usdc-1000.tornadocash.eth',
     'usdt-100.tornadocash.eth',
+    'usdt-1000.tornadocash.eth',
   ]
   console.log('Allowed instances:')
   allowed.forEach((name) => {
@@ -106,12 +107,14 @@ const config = {
       chainId: 1,
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-        blockNumber: 11839100,
+        blockNumber: 11842548,
       },
     },
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: process.env.PRIVATE_KEY
+        ? [process.env.PRIVATE_KEY]
+        : { mnemonic: 'test test test test test test test test test test test junk' },
     },
   },
   mocha: {
