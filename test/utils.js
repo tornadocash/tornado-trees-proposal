@@ -40,7 +40,7 @@ async function getSignerFromAddress(address) {
   return await ethers.provider.getSigner(address)
 }
 
-async function getDepositData({ tornadoTreesAddress, fromBlock, provider, batchSize }) {
+async function getDepositData({ tornadoTreesAddress, fromBlock, step, provider, batchSize }) {
   const tornadoTrees = new ethers.Contract(tornadoTreesAddress, tornadoTreesAbi, provider)
   const lastProcessedDepositLeaf = (await tornadoTrees.lastProcessedDepositLeaf()).toNumber()
   const depositData = []
@@ -48,7 +48,7 @@ async function getDepositData({ tornadoTreesAddress, fromBlock, provider, batchS
     const nextDeposit = await tornadoTrees.deposits(i)
 
     while (true) {
-      const toBlock = Number(fromBlock) + 5000
+      const toBlock = Number(fromBlock) + Number(step)
       // console.log(`getting events from ${fromBlock} to ${toBlock}`)
       const tornadoEvents = await getTornadoEvents({
         instances: ethInstances,
@@ -71,7 +71,7 @@ async function getDepositData({ tornadoTreesAddress, fromBlock, provider, batchS
   return depositData
 }
 
-async function getWithdrawalData({ tornadoTreesAddress, fromBlock, provider, batchSize }) {
+async function getWithdrawalData({ tornadoTreesAddress, fromBlock, step, provider, batchSize }) {
   const tornadoTrees = new ethers.Contract(tornadoTreesAddress, tornadoTreesAbi, provider)
   const lastProcessedWithdrawalLeaf = (await tornadoTrees.lastProcessedWithdrawalLeaf()).toNumber()
   // console.log('lastProcessedWithdrawalLeaf', lastProcessedWithdrawalLeaf)
@@ -81,7 +81,7 @@ async function getWithdrawalData({ tornadoTreesAddress, fromBlock, provider, bat
     // console.log('nextWithdrawal', nextWithdrawal)
 
     while (true) {
-      const toBlock = Number(fromBlock) + 5000
+      const toBlock = Number(fromBlock) + Number(step)
       // console.log(`getting events from ${fromBlock} to ${toBlock}`)
       const tornadoEvents = await getTornadoEvents({
         instances: ethInstances,

@@ -107,7 +107,7 @@ const config = {
       chainId: 1,
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-        blockNumber: 11842548,
+        blockNumber: 11494310,
       },
     },
     mainnet: {

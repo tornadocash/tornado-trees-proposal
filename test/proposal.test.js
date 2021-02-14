@@ -7,12 +7,13 @@ const {
   erc20Instances,
   advanceTime,
   getSignerFromAddress,
-  getTornadoEvents,
-  getRegisteredEvents,
   getDepositData,
   getWithdrawalData,
 } = require('./utils')
 const { parseEther } = ethers.utils
+const { Note } = require('tornado-anonymity-mining')
+const { toFixedHex } = require('tornado-anonymity-mining/src/utils')
+const { initialize, generateProof, createDeposit } = require('tornado-cli')
 
 describe('Proposal', () => {
   let governance
@@ -24,6 +25,8 @@ describe('Proposal', () => {
   let tornadoTrees
   let tornadoProxy
 
+  let accounts
+
   let VOTING_DELAY
   let VOTING_PERIOD
   let EXECUTION_DELAY
@@ -34,6 +37,33 @@ describe('Proposal', () => {
   const provider = new ethers.providers.JsonRpcProvider(
     `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
   )
+  const notes = [
+    'tornado-eth-1-1-0xf3f2510798052f2d951250aa67d462ad6d5442218fdf035966761a8baaead29b9813527acd43f435ad39a943d2db5e0b00b371189ed2fcc3abcfd65264ad',
+    'tornado-eth-1-1-0x3f7b26d1251dea5c3d46cfa4a1205ea273c85c48f63b3e9a3c985a1b23df3841d9c32c1afda69eaa015d45a5c5bc9b3c2e4aa8aa9343702666a2471c5bf0',
+    'tornado-eth-1-1-0x454888db329be3cbd8ec85af50ca3e5e82f804f47168fc9047c5aa19c821d02b1fc44ce48b8ca02d4ba02f9c9d1b09bb4299c572356a3e34683e2b4fba8e',
+    'tornado-eth-1-1-0x7549a16aef6781003ed236393a9ea38918bd0e3e17fcb29d153ca5d7943313883690f1156421f44191f71fbbe8a007007f4c7b77b837ef8f3eca68d0da36',
+  ]
+
+  async function depositNote({ note }) {
+    note = Note.fromString(note, ethInstances[1], 1, 1)
+    return await tornadoProxyV1.deposit(ethInstances[1], toFixedHex(note.commitment), [], {
+      value: '1000000000000000000',
+    })
+  }
+
+  async function withdrawNote({ note }) {
+    note = Note.fromString(note, ethInstances[1], 1, 1)
+    const deposit = createDeposit({ nullifier: note.nullifier, secret: note.secret })
+    const oneEthInstance = await ethers.getContractAt(require('./abis/tornado.json'), ethInstances[1])
+    const filter = oneEthInstance.filters.Deposit()
+    const depositEvents = await oneEthInstance.queryFilter(filter, 0)
+    const { proof, args } = await generateProof({
+      deposit,
+      recipient: accounts[0].address,
+      events: depositEvents,
+    })
+    return await tornadoProxyV1.withdraw(ethInstances[1], proof, ...args)
+  }
 
   // todo change it to beforeEach and use snapshots
   /* prettier-ignore */
@@ -46,20 +76,39 @@ describe('Proposal', () => {
     EXECUTION_DELAY = (await governance.EXECUTION_DELAY()).toNumber()
     tornadoProxyV1 = await ethers.getContractAt(require('./abis/proxyV1.json'), tornadoProxyV1address)
 
+    accounts = await ethers.getSigners()
+    await initialize({ merkleTreeHeight: 20 })
+
     // upload appropriate amount of deposits and withdrawals to tornadoTreesV1
     tornadoTreesV1 = await ethers.getContractAt(require('./abis/treesV1.json'), tornadoTreesV1address)
-    const lastProcessedDepositLeaf = (await tornadoTreesV1.lastProcessedDepositLeaf()).toNumber()
-    const lastProcessedWithdrawalLeaf = (await tornadoTreesV1.lastProcessedWithdrawalLeaf()).toNumber()
+    const deposits = await tornadoTreesV1.getRegisteredDeposits()
+    console.log('deposits', deposits)
+    const withdrawals = await tornadoTreesV1.getRegisteredWithdrawals()
+    console.log('withdrawals', withdrawals)
+    let lastProcessedDepositLeaf = (await tornadoTreesV1.lastProcessedDepositLeaf()).toNumber()
+    let lastProcessedWithdrawalLeaf = (await tornadoTreesV1.lastProcessedWithdrawalLeaf()).toNumber()
     const depositBatchSize = CHUNK_SIZE - lastProcessedDepositLeaf % CHUNK_SIZE
     const withdrawalBatchSize = CHUNK_SIZE - lastProcessedWithdrawalLeaf % CHUNK_SIZE
-    console.log('Getting withdrawals and deposits for tornadoTreesV1')
-    // const depositData = await getDepositData({ tornadoTreesAddress: tornadoTreesV1address, provider, fromBlock: 11612470 , batchSize: depositBatchSize })
-    // const withdrawalData = await getWithdrawalData({ tornadoTreesAddress: tornadoTreesV1address, provider, fromBlock: 11728750, batchSize: withdrawalBatchSize })
-    const depositData = require('./events/depositData.json')
-    const withdrawalData = require('./events/withdrawalData.json')
+    console.log(`Getting ${depositBatchSize} deposits and ${withdrawalBatchSize} withdrawals for tornadoTreesV1`)
+    const { number } = await ethers.provider.getBlock()
+    const depositData = await getDepositData({ tornadoTreesAddress: tornadoTreesV1address, provider: ethers.provider, fromBlock: number - 1000, step: 500, batchSize: depositBatchSize }) // 11612470 modern state
+    const withdrawalData = await getWithdrawalData({ tornadoTreesAddress: tornadoTreesV1address, provider: ethers.provider, fromBlock: number - 1000, step: 500, batchSize: withdrawalBatchSize }) // 11728750
+    // const depositData = require('./events/depositData.json')
+    // const withdrawalData = require('./events/withdrawalData.json')
+
+    // depositing fresh note
+    const depositReciept = await depositNote({ note: notes[0] })
+    console.log('depositReciept', depositReciept)
+
+    const withdrawReciept = await withdrawNote({ note: notes[0] })
+    console.log('withdrawReciept', withdrawReciept)
 
     console.log(`Uploading ${depositData.length} deposits and ${withdrawalData.length} withdrawals`)
     await tornadoTreesV1.updateRoots(depositData, withdrawalData)
+
+    lastProcessedDepositLeaf = (await tornadoTreesV1.lastProcessedDepositLeaf()).toNumber()
+    lastProcessedWithdrawalLeaf = (await tornadoTreesV1.lastProcessedWithdrawalLeaf()).toNumber()
+    console.log('lastProcessedLeafs', lastProcessedDepositLeaf, lastProcessedWithdrawalLeaf)
 
     // prechecks
     for (let i = 0; i < ethInstances.length; i++) {
@@ -68,6 +117,7 @@ describe('Proposal', () => {
     }
 
     const Proposal = await ethers.getContractFactory('Proposal')
+    // todo for mainnet use  `npx hardhat searchParams`
     const proposal = await Proposal.deploy()
 
     torn = torn.connect(tornWhale)

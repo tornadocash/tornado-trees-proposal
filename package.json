@@ -38,6 +38,7 @@
     "fixed-merkle-tree": "^0.5.0",
     "torn-token": "^1.0.0",
     "tornado-anonymity-mining": "^1.0.0",
-    "tornado-trees": "^0.0.4"
+    "tornado-trees": "^0.0.4",
+    "tornado-cli": "1.0.0"
   }
 }
