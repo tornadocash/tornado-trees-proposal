@@ -1,7 +1,7 @@
 /* global ethers, network */
 const tornadoAbi = require('./abis/tornado.json')
 const tornadoTreesAbi = require('./abis/trees.json')
-// const { poseidonHash } = require('tornado-trees/src/utils')
+const { poseidonHash } = require('tornado-trees/src/utils')
 const abi = new ethers.utils.AbiCoder()
 
 const ethInstances = [
@@ -45,7 +45,13 @@ async function getDepositData({ tornadoTreesAddress, fromBlock, step, provider, 
   const lastProcessedDepositLeaf = (await tornadoTrees.lastProcessedDepositLeaf()).toNumber()
   const depositData = []
   for (let i = lastProcessedDepositLeaf; i < lastProcessedDepositLeaf + batchSize; i++) {
-    const nextDeposit = await tornadoTrees.deposits(i)
+    let nextDeposit
+    try {
+      nextDeposit = await tornadoTrees.deposits(i)
+    } catch (e) {
+      console.log(`There are no more registered deposits, returning ${depositData.length} deposits`)
+      break
+    }
 
     while (true) {
       const toBlock = Number(fromBlock) + Number(step)
@@ -77,8 +83,13 @@ async function getWithdrawalData({ tornadoTreesAddress, fromBlock, step, provide
   // console.log('lastProcessedWithdrawalLeaf', lastProcessedWithdrawalLeaf)
   const withdrawalData = []
   for (let i = lastProcessedWithdrawalLeaf; i < lastProcessedWithdrawalLeaf + batchSize; i++) {
-    const nextWithdrawal = await tornadoTrees.withdrawals(i)
-    // console.log('nextWithdrawal', nextWithdrawal)
+    let nextWithdrawal
+    try {
+      nextWithdrawal = await tornadoTrees.withdrawals(i)
+    } catch (e) {
+      console.log(`There are no more registered withdrawals, returning ${withdrawalData.length} withdrawals`)
+      break
+    }
 
     while (true) {
       const toBlock = Number(fromBlock) + Number(step)
@@ -157,14 +168,27 @@ async function getRegisteredEvents({ type, contract, provider }) {
   return events[0]
 }
 
+async function getMiningEvents({ contract, fromBlock, toBlock, type, provider }) {
+  const tornadoTrees = new ethers.Contract(contract, tornadoTreesAbi, provider)
+  const eventFilter =
+    type === 'deposit' ? tornadoTrees.filters.DepositData() : tornadoTrees.filters.WithdrawalData()
+  let events = await tornadoTrees.queryFilter(eventFilter, fromBlock, toBlock)
+  events = events.sort((a, b) => a.args.index.sub(b.args.index))
+  const leaves = events.map((e) => poseidonHash([e.args.instance, e.args.hash, e.args.block]))
+
+  return { events, leaves }
+}
+
 module.exports = {
   ethInstances,
   erc20Instances,
   setTime,
   advanceTime,
   getSignerFromAddress,
+  getInstanceEvents,
   getTornadoEvents,
   getRegisteredEvents,
   getDepositData,
   getWithdrawalData,
+  getMiningEvents,
 }

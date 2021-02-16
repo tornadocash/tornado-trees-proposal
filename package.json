@@ -39,6 +39,7 @@
     "torn-token": "^1.0.0",
     "tornado-anonymity-mining": "^1.0.0",
     "tornado-trees": "^0.0.4",
-    "tornado-cli": "1.0.0"
+    "snarkjs": "^0.3.57",
+    "tornado-cli": "0.0.1"
   }
 }
