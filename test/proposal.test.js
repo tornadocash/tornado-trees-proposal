@@ -1,6 +1,7 @@
 /* global ethers */
 
 const { expect, should } = require('chai')
+const fs = require('fs')
 should()
 const {
   ethInstances,
@@ -10,15 +11,20 @@ const {
   getDepositData,
   getWithdrawalData,
   getMiningEvents,
+  takeSnapshot,
+  revertSnapshot,
 } = require('./utils')
 const { parseEther } = ethers.utils
 const { Note } = require('tornado-anonymity-mining')
-const { toFixedHex, poseidonHash2 } = require('tornado-anonymity-mining/src/utils')
+const { toFixedHex } = require('tornado-anonymity-mining/src/utils')
 const { initialize, generateProof, createDeposit } = require('tornado-cli')
 const treesUpdater = require('tornado-trees')
+const { poseidonHash2 } = require('tornado-trees/src/utils')
 const MerkleTree = require('fixed-merkle-tree')
+const withdrawalsCache = require('../snarks/withdrawalsCache.json')
 
 describe('Proposal', () => {
+  let snapshotId
   let governance
   let torn
   let tornWhale
@@ -45,6 +51,8 @@ describe('Proposal', () => {
     'tornado-eth-1-1-0x3f7b26d1251dea5c3d46cfa4a1205ea273c85c48f63b3e9a3c985a1b23df3841d9c32c1afda69eaa015d45a5c5bc9b3c2e4aa8aa9343702666a2471c5bf0',
     'tornado-eth-1-1-0x454888db329be3cbd8ec85af50ca3e5e82f804f47168fc9047c5aa19c821d02b1fc44ce48b8ca02d4ba02f9c9d1b09bb4299c572356a3e34683e2b4fba8e',
     'tornado-eth-1-1-0x7549a16aef6781003ed236393a9ea38918bd0e3e17fcb29d153ca5d7943313883690f1156421f44191f71fbbe8a007007f4c7b77b837ef8f3eca68d0da36',
+    'tornado-eth-1-1-0x0c683cb56c9d4ac7f04ecac29d4dfc94330c397c3194b271bae2b0b436f4dc954cad93c74a7233e9cec4c8075c05cf8a98f4bc7c0ea794424d0d8dbbe180',
+    'tornado-eth-1-1-0x7de59be383b8cc1735961916f8a66ee1a532ca37f995bdbacc4a65c0182e2f6555118d983eb74e35839ee69e9a503f4ff33eb5bd9878a19197bf9cdc2535',
   ]
 
   async function depositNote({ note, proxy }) {
@@ -55,16 +63,24 @@ describe('Proposal', () => {
   }
 
   async function withdrawNote({ note, proxy }) {
-    note = Note.fromString(note, ethInstances[1], 1, 1)
-    const deposit = createDeposit({ nullifier: note.nullifier, secret: note.secret })
-    const oneEthInstance = await ethers.getContractAt(require('./abis/tornado.json'), ethInstances[1])
-    const filter = oneEthInstance.filters.Deposit()
-    const depositEvents = await oneEthInstance.queryFilter(filter, 0)
-    const { proof, args } = await generateProof({
-      deposit,
-      recipient: accounts[0].address,
-      events: depositEvents,
-    })
+    let cache = withdrawalsCache[note]
+    let proof, args
+    if (!cache) {
+      const noteObject = Note.fromString(note, ethInstances[1], 1, 1)
+      const deposit = createDeposit({ nullifier: noteObject.nullifier, secret: noteObject.secret })
+      const oneEthInstance = await ethers.getContractAt(require('./abis/tornado.json'), ethInstances[1])
+      const filter = oneEthInstance.filters.Deposit()
+      const depositEvents = await oneEthInstance.queryFilter(filter, 0)
+      ;({ proof, args } = await generateProof({
+        deposit,
+        recipient: accounts[0].address,
+        events: depositEvents,
+      }))
+      withdrawalsCache[note] = { proof, args }
+      fs.writeFileSync('./snarks/withdrawalsCache.json', JSON.stringify(withdrawalsCache, null, 2))
+    } else {
+      ;({ proof, args } = cache)
+    }
     return await proxy.withdraw(ethInstances[1], proof, ...args)
   }
 
@@ -142,6 +158,8 @@ describe('Proposal', () => {
     )
     tornadoProxy = await ethers.getContractAt(require('./abis/proxy.json'), tornadoProxyAddress)
     tornadoTrees = await ethers.getContractAt(require('./abis/trees.json'), tornadoTreesAddress)
+
+    snapshotId = await takeSnapshot()
   })
 
   it('should turn on instances for new tornado proxy and turn off the old one', async function () {
@@ -192,7 +210,7 @@ describe('Proposal', () => {
     expect(withdrawalRoot).to.be.equal(withdrawalRootV1)
   })
 
-  it('should update new tornado trees', async () => {
+  it('should update deposits in the new tornado trees', async () => {
     const receipt = await depositNote({ note: notes[1], proxy: tornadoProxy })
     const { events } = await receipt.wait()
     const note1EventArgs = tornadoTrees.interface.parseLog(events[1]).args
@@ -239,6 +257,72 @@ describe('Proposal', () => {
     const depositsLengthAfter = await tornadoTrees.depositsLength()
     expect(depositsLengthAfter).to.be.equal(depositsLengthBefore)
   })
-  it('should revert for inconsistent tornado tree deposits count')
+  it('should update withdrawals in the new tornado trees', async () => {
+    await depositNote({ note: notes[1], proxy: tornadoProxy })
+    await depositNote({ note: notes[2], proxy: tornadoProxy })
+    await depositNote({ note: notes[3], proxy: tornadoProxy })
+    await withdrawNote({ note: notes[1], proxy: tornadoProxy })
+    await withdrawNote({ note: notes[2], proxy: tornadoProxy })
+    await withdrawNote({ note: notes[3], proxy: tornadoProxy })
+    // const { events } = await receipt.wait()
+    // const note1EventArgs = tornadoTrees.interface.parseLog(events[1]).args
+
+    // data for the new tree
+    const { number } = await ethers.provider.getBlock()
+    let withdrawalData = await getWithdrawalData({
+      tornadoTreesAddress: tornadoTreesV1address,
+      provider: ethers.provider,
+      fromBlock: number - 1000,
+      step: 500,
+      batchSize: 4,
+    })
+
+    const { events } = await getMiningEvents({
+      contract: tornadoTrees.address,
+      fromBlock: 11474714,
+      toBlock: number,
+      type: 'withdrawal',
+      provider: ethers.provider,
+    })
+    withdrawalData = withdrawalData.concat(
+      events.map((e) => ({ instance: e.args.instance, hash: e.args.hash, block: e.args.block.toNumber() })),
+    )
+
+    // getting previous withdrawals to build current tree
+    const { leaves } = await getMiningEvents({
+      contract: tornadoTreesV1.address,
+      fromBlock: 11474714,
+      toBlock: number,
+      type: 'withdrawal',
+      provider: ethers.provider,
+    })
+    const withdrawalTree = new MerkleTree(20, [], { hashFunction: poseidonHash2 })
+    withdrawalTree.bulkInsert(leaves)
+    expect(await tornadoTrees.withdrawalRoot()).to.be.equal(toFixedHex(withdrawalTree.root()))
+    const { input, args } = treesUpdater.batchTreeUpdate(withdrawalTree, withdrawalData)
+    const proof = await treesUpdater.prove(input, './snarks/BatchTreeUpdate')
+
+    const registeredWithdrawalsV1Before = await tornadoTreesV1.getRegisteredWithdrawals()
+    const registeredWithdrawalsBefore = await tornadoTrees.getRegisteredWithdrawals()
+    const lastProcessedWithdrawalLeafBefore = await tornadoTrees.lastProcessedWithdrawalLeaf()
+    expect(registeredWithdrawalsBefore.length + registeredWithdrawalsV1Before.length).to.be.equal(5) // 1 withdrawal in the v1 and 4 in the new one, but the first is 0x00 - it points to v1
+    const withdrawalsLengthBefore = await tornadoTrees.withdrawalsLength()
+
+    await tornadoTrees.updateWithdrawalTree(proof, ...args)
+
+    const lastProcessedWithdrawalLeafAfter = await tornadoTrees.lastProcessedWithdrawalLeaf()
+    expect(lastProcessedWithdrawalLeafAfter).to.be.equal(lastProcessedWithdrawalLeafBefore.add(4))
+    const registeredWithdrawalsAfter = await tornadoTrees.getRegisteredWithdrawals()
+    expect(registeredWithdrawalsAfter.length).to.be.equal(0)
+
+    const withdrawalsLengthAfter = await tornadoTrees.withdrawalsLength()
+    expect(withdrawalsLengthAfter).to.be.equal(withdrawalsLengthBefore)
+  })
+  it('should revert for inconsistent tornado tree deposits count', async () => {})
   it('should revert for inconsistent tornado tree withdrawals count')
+
+  afterEach(async () => {
+    await revertSnapshot(snapshotId)
+    snapshotId = await takeSnapshot()
+  })
 })

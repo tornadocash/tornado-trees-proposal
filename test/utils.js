@@ -26,6 +26,14 @@ async function setTime(timestamp) {
   await ethers.provider.send('evm_setNextBlockTimestamp', [timestamp])
 }
 
+async function takeSnapshot() {
+  return await ethers.provider.send('evm_snapshot', [])
+}
+
+async function revertSnapshot(id) {
+  await ethers.provider.send('evm_revert', [id])
+}
+
 async function advanceTime(sec) {
   const now = (await ethers.provider.getBlock('latest')).timestamp
   await setTime(now + sec)
@@ -184,6 +192,8 @@ module.exports = {
   erc20Instances,
   setTime,
   advanceTime,
+  takeSnapshot,
+  revertSnapshot,
   getSignerFromAddress,
   getInstanceEvents,
   getTornadoEvents,
