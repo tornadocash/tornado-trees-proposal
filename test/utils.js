@@ -1,6 +1,7 @@
 /* global ethers, network */
 const tornadoAbi = require('./abis/tornado.json')
-const tornadoTreesAbi = require('./abis/trees.json')
+const tornadoTreesAbi = require('../artifacts/tornado-trees/contracts/TornadoTrees.sol/TornadoTrees.json').abi
+const minerAbi = require('./abis/miner.json')
 const { poseidonHash } = require('tornado-trees/src/utils')
 const abi = new ethers.utils.AbiCoder()
 
@@ -181,10 +182,24 @@ async function getMiningEvents({ contract, fromBlock, toBlock, type, provider })
   const eventFilter =
     type === 'deposit' ? tornadoTrees.filters.DepositData() : tornadoTrees.filters.WithdrawalData()
   let events = await tornadoTrees.queryFilter(eventFilter, fromBlock, toBlock)
-  events = events.sort((a, b) => a.args.index.sub(b.args.index))
-  const leaves = events.map((e) => poseidonHash([e.args.instance, e.args.hash, e.args.block]))
+  events = events
+    .sort((a, b) => a.args.index.sub(b.args.index))
+    .map((e) => ({
+      instance: e.args.instance,
+      hash: e.args.hash,
+      block: e.args.block.toNumber(),
+      index: e.args.index.toNumber(),
+    }))
+  const leaves = events.map((e) => poseidonHash([e.instance, e.hash, e.block]))
 
   return { events, leaves }
+}
+
+async function getAccountCommitments({ contract, fromBlock, toBlock, provider }) {
+  const miner = new ethers.Contract(contract, minerAbi, provider)
+  const eventFilter = miner.filters.NewAccount()
+  let events = await miner.queryFilter(eventFilter, fromBlock, toBlock)
+  return events.sort((a, b) => a.args.index.sub(b.args.index)).map((e) => e.args.commitment)
 }
 
 module.exports = {
@@ -201,4 +216,5 @@ module.exports = {
   getDepositData,
   getWithdrawalData,
   getMiningEvents,
+  getAccountCommitments,
 }

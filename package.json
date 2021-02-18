@@ -36,10 +36,11 @@
     "dotenv": "^8.2.0",
     "eth-ens-namehash": "^2.0.8",
     "fixed-merkle-tree": "^0.5.0",
+    "jszip": "^3.6.0",
+    "snarkjs": "^0.3.57",
     "torn-token": "^1.0.0",
     "tornado-anonymity-mining": "^1.0.0",
-    "tornado-trees": "^0.0.4",
-    "snarkjs": "^0.3.57",
-    "tornado-cli": "0.0.1"
+    "tornado-cli": "0.0.1",
+    "tornado-trees": "^0.0.4"
   }
 }
