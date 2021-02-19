@@ -101,32 +101,23 @@ contract Proposal {
     ];
   }
 
-  function getInstances() public pure returns (TornadoProxy.Instance[] memory instances) {
-    // another approach
-    //     instances = [
-    //       TornadoProxy.Instance({ instance: bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a), state: TornadoProxy.InstanceState.Mineable }),
-    //       TornadoProxy.Instance({ instance: bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b), state: TornadoProxy.InstanceState.Mineable })
-    //     ];
-    bytes32[4] memory miningInstances =
-      [
-        bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a),
-        bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b),
-        bytes32(0x917e42347647689051abc744f502bff342c76ad30c0670b46b305b2f7e1f893d),
-        bytes32(0xddfc726d74f912f49389ef7471e75291969852ce7e5df0509a17bc1e46646985)
-      ];
+  // todo should we add more instances? usdt-100000 ?
+  function getErc20Instances() public pure returns (address[8] memory) {
+    return [
+      address(0xD4B88Df4D29F5CedD6857912842cff3b20C8Cfa3),
+      address(0xFD8610d20aA15b7B2E3Be39B396a1bC3516c7144),
+      address(0x22aaA7720ddd5388A3c0A3333430953C68f1849b),
+      address(0xBA214C1c1928a32Bffe790263E38B4Af9bFCD659),
+      address(0xd96f2B1c14Db8458374d9Aca76E26c3D18364307),
+      address(0x4736dCf1b7A3d580672CcE6E7c65cd5cc9cFBa9D),
+      address(0x169AD27A470D064DEDE56a2D3ff727986b15D52B),
+      address(0x0836222F2B2B24A3F36f98668Ed8F0B38D1a872f)
+    ];
+  }
 
-    // todo should we add more instances? usdt-100000 ?
-    bytes32[8] memory allowedInstances =
-      [
-        bytes32(0x95ad5771ba164db3fc73cc74d4436cb6a6babd7a2774911c69d8caae30410982),
-        bytes32(0x109d0334da83a2c3a687972cc806b0eda52ee7a30f3e44e77b39ae2a20248321),
-        bytes32(0xc9395879ffcee571b0dfd062153b27d62a6617e0f272515f2eb6259fe829c3df),
-        bytes32(0xf840ad6cba4dbbab0fa58a13b092556cd53a6eeff716a3c4a41d860a888b6155),
-        bytes32(0xd49809328056ea7b7be70076070bf741ec1a27b86bebafdc484eee88c1834191),
-        bytes32(0x77e2b15eddc494b6da6cee0d797ed30ed3945f2c7de0150f16f0405a12e5665f),
-        bytes32(0x36bab2c045f88613be6004ec1dc0c3937941fcf4d4cb78d814c933bf1cf25baf),
-        bytes32(0x7a3b0883165756c26821d9b8c9737166a156a78b478b17e42da72fba7a373356)
-      ];
+  function getInstances() public pure returns (TornadoProxy.Instance[] memory instances) {
+    address[4] memory miningInstances = getEthInstances();
+    address[8] memory allowedInstances = getErc20Instances();
     instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
 
     for (uint256 i = 0; i < miningInstances.length; i++) {
