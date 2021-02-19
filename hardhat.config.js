@@ -76,12 +76,14 @@ task('searchParams', 'Prints optimal search params for tree updates deployment',
   const depositsPerDay = Math.round(depositCount / days)
   const withdrawalsPerDay = Math.round(withdrawalCount / days)
 
-  console.log({
+  const params = {
     depositsFrom: processedDeposits + unprocessedDeposits + depositsPerDay * proposalDays,
     depositsStep: Math.round(depositsPerDay / 5),
     withdrawalsFrom: processedWithdrawals + unprocessedWithdrawals + withdrawalsPerDay * proposalDays,
     withdrawalsStep: Math.round(withdrawalsPerDay / 5),
-  })
+  }
+  console.log(params)
+  console.log(Object.values(params))
 })
 
 // You need to export an object to set up your config
@@ -115,6 +117,17 @@ const config = {
       accounts: process.env.PRIVATE_KEY
         ? [process.env.PRIVATE_KEY]
         : { mnemonic: 'test test test test test test test test test test test junk' },
+    },
+    mainnetInfura: {
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
+      accounts: process.env.PRIVATE_KEY
+        ? [process.env.PRIVATE_KEY]
+        : { mnemonic: 'test test test test test test test test test test test junk' },
+    },
+    localhost: {
+      // chainId: 1,
+      gasPrice: 0,
+      timeout: 999999999,
     },
   },
   mocha: {

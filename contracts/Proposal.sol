@@ -26,6 +26,23 @@ contract Proposal {
 
   event Deployed(address _contract);
 
+  uint256 private immutable depositsFrom;
+  uint256 private immutable depositsStep;
+  uint256 private immutable withdrawalsFrom;
+  uint256 private immutable withdrawalsStep;
+
+  constructor(
+    uint256 _depositsFrom,
+    uint256 _depositsStep,
+    uint256 _withdrawalsFrom,
+    uint256 _withdrawalsStep
+  ) public {
+    depositsFrom = _depositsFrom;
+    depositsStep = _depositsStep;
+    withdrawalsFrom = _withdrawalsFrom;
+    withdrawalsStep = _withdrawalsStep;
+  }
+
   function executeProposal() public {
     // Disable registering new deposits on old tornado proxy
     address[4] memory miningInstances = getEthInstances();
@@ -43,15 +60,13 @@ contract Proposal {
     address tornadoProxyExpectedAddress = computeAddress(address(this), nonce + 1);
 
     // Deploy new TornadoTrees contract
-    TornadoTrees.SearchParams memory searchParams =
-      TornadoTrees.SearchParams({ depositsFrom: 820, depositsStep: 10, withdrawalsFrom: 350, withdrawalsStep: 10 }); // todo adjust parameters
     TornadoTrees tornadoTrees =
       new TornadoTrees(
         address(this),
         tornadoProxyExpectedAddress,
         tornadoTreesV1,
         IBatchTreeUpdateVerifier(address(verifier)),
-        searchParams
+        getSearchParams()
       );
     emit Deployed(address(tornadoTrees));
 
@@ -65,6 +80,16 @@ contract Proposal {
     // Make sure that contract addresses are set correctly
     require(address(proxy.tornadoTrees()) == address(tornadoTrees), "tornadoTrees deployed to an unexpected address");
     require(address(tornadoTrees.tornadoProxy()) == address(proxy), "tornadoProxy deployed to an unexpected address");
+  }
+
+  function getSearchParams() public view returns (TornadoTrees.SearchParams memory) {
+    return
+      TornadoTrees.SearchParams({
+        depositsFrom: depositsFrom,
+        depositsStep: depositsStep,
+        withdrawalsFrom: withdrawalsFrom,
+        withdrawalsStep: withdrawalsStep
+      });
   }
 
   function getEthInstances() public pure returns (address[4] memory) {
