@@ -41,6 +41,6 @@
     "torn-token": "^1.0.0",
     "tornado-anonymity-mining": "^1.0.0",
     "tornado-cli": "0.0.1",
-    "tornado-trees": "^0.0.4"
+    "tornado-trees": "^0.0.5"
   }
 }
