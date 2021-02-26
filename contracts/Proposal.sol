@@ -14,6 +14,7 @@ pragma experimental ABIEncoderV2;
 import "tornado-trees/contracts/interfaces/ITornadoTreesV1.sol";
 import "tornado-trees/contracts/interfaces/IBatchTreeUpdateVerifier.sol";
 import "tornado-trees/contracts/TornadoTrees.sol";
+import "tornado-trees/contracts/AdminUpgradeableProxy.sol";
 import "tornado-anonymity-mining/contracts/TornadoProxy.sol";
 import "./interfaces/ITornadoProxyV1.sol";
 import "./interfaces/IMiner.sol";
@@ -54,32 +55,24 @@ contract Proposal {
     BatchTreeUpdateVerifier verifier = new BatchTreeUpdateVerifier();
     emit Deployed(address(verifier));
 
-    // Find current governance contract nonce and calculate TornadoProxy
-    // expected address to solve circular dependency
-    uint256 nonce = findNextNonce(address(this), address(verifier), 0);
-    address tornadoProxyExpectedAddress = computeAddress(address(this), nonce + 1);
+    // Deploy new TornadoTrees implementation
+    TornadoTrees tornadoTreesImpl = new TornadoTrees(address(this), tornadoTreesV1, getSearchParams());
+    emit Deployed(address(tornadoTreesImpl));
 
-    // Deploy new TornadoTrees contract
-    TornadoTrees tornadoTrees =
-      new TornadoTrees(
-        address(this),
-        tornadoProxyExpectedAddress,
-        tornadoTreesV1,
-        IBatchTreeUpdateVerifier(address(verifier)),
-        getSearchParams()
-      );
-    emit Deployed(address(tornadoTrees));
+    // Deploy TornadoTrees upgradeable proxy
+    AdminUpgradeableProxy upgradeableProxy = new AdminUpgradeableProxy(address(tornadoTreesImpl), "");
+    emit Deployed(address(upgradeableProxy));
+    TornadoTrees tornadoTrees = TornadoTrees(address(upgradeableProxy));
 
     // Deploy new TornadoProxy
     TornadoProxy proxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
     emit Deployed(address(proxy));
 
+    // Init tornado trees
+    tornadoTrees.initialize(address(proxy), IBatchTreeUpdateVerifier(address(verifier)));
+
     // Update TornadoTrees address on the mining contract
     miner.setTornadoTreesContract(address(tornadoTrees));
-
-    // Make sure that contract addresses are set correctly
-    require(address(proxy.tornadoTrees()) == address(tornadoTrees), "tornadoTrees deployed to an unexpected address");
-    require(address(tornadoTrees.tornadoProxy()) == address(proxy), "tornadoProxy deployed to an unexpected address");
   }
 
   function getSearchParams() public view returns (TornadoTrees.SearchParams memory) {
@@ -126,33 +119,5 @@ contract Proposal {
     for (uint256 i = 0; i < allowedInstances.length; i++) {
       instances[miningInstances.length + i] = TornadoProxy.Instance(allowedInstances[i], TornadoProxy.InstanceState.Enabled);
     }
-  }
-
-  /// @dev find the contract nonce
-  /// @param _deployer deploying (current) contract
-  /// @param _lastDeployed address of the last deployed contract
-  /// @param _start initial nonce to start search from
-  function findNextNonce(
-    address _deployer,
-    address _lastDeployed,
-    uint256 _start
-  ) public pure returns (uint256) {
-    while (computeAddress(_deployer, _start) != _lastDeployed) {
-      _start++;
-    }
-    return _start + 1;
-  }
-
-  /// @dev compute smart contract expected deploy address
-  function computeAddress(address _origin, uint256 _nonce) public pure returns (address) {
-    bytes memory data;
-    if (_nonce == 0x00) data = abi.encodePacked(bytes1(0xd6), bytes1(0x94), _origin, bytes1(0x80));
-    else if (_nonce <= 0x7f) data = abi.encodePacked(bytes1(0xd6), bytes1(0x94), _origin, bytes1(uint8(_nonce)));
-    else if (_nonce <= 0xff) data = abi.encodePacked(bytes1(0xd7), bytes1(0x94), _origin, bytes1(0x81), uint8(_nonce));
-    else if (_nonce <= 0xffff) data = abi.encodePacked(bytes1(0xd8), bytes1(0x94), _origin, bytes1(0x82), uint16(_nonce));
-    else if (_nonce <= 0xffffff) data = abi.encodePacked(bytes1(0xd9), bytes1(0x94), _origin, bytes1(0x83), uint24(_nonce));
-    else data = abi.encodePacked(bytes1(0xda), bytes1(0x94), _origin, bytes1(0x84), uint32(_nonce));
-    bytes32 hash = keccak256(data);
-    return address(uint160(uint256(hash)));
   }
 }

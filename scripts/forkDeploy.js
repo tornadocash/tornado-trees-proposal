@@ -21,7 +21,7 @@ async function main() {
   const VOTING_DELAY = (await governance.VOTING_DELAY()).toNumber()
   const VOTING_PERIOD = (await governance.VOTING_PERIOD()).toNumber()
   const EXECUTION_DELAY = (await governance.EXECUTION_DELAY()).toNumber()
-  const CHUNK_SIZE = 4
+  const CHUNK_SIZE = 256
   const tornadoTreesV1address = '0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417'
 
   const tornadoTreesV1 = await ethers.getContractAt(
@@ -70,12 +70,13 @@ async function main() {
   const receipt = await governance.execute(proposalId)
   const { events } = await receipt.wait()
 
-  let [verifierAddress, tornadoTreesAddress, tornadoProxyAddress] = events.map(
+  let [verifierAddress, tornadoTreesImpl, tornadoTreesAddress, tornadoProxyAddress] = events.map(
     (e) => '0x' + e.data.slice(-40),
   )
   console.log(`Verifier           : ${verifierAddress}`)
-  console.log(`New tornadoProxy   : ${tornadoProxyAddress}`)
-  console.log(`New tornadoTrees   : ${tornadoTreesAddress}`)
+  console.log(`TornadoProxy       : ${tornadoProxyAddress}`)
+  console.log(`TornadoTrees impl  : ${tornadoTreesImpl}`)
+  console.log(`TornadoTrees       : ${tornadoTreesAddress}`)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
