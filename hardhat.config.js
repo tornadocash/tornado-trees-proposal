@@ -125,7 +125,7 @@ const config = {
         : { mnemonic: 'test test test test test test test test test test test junk' },
     },
     localhost: {
-      // chainId: 1,
+      chainId: 1,
       gasPrice: 0,
       timeout: 999999999,
     },
