@@ -4,3 +4,5 @@ cache
 circuits
 contracts/verifiers
 test/abis
+snarks
+

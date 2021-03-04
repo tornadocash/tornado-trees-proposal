@@ -52,9 +52,6 @@ describe('Proposal', () => {
   const privateKey = '626378a151669eb48a40f63ff88e99e6f6b03cb58bb3b381b414113e747fd80d'
   const publicKey = getEncryptionPublicKey(privateKey)
 
-  const provider = new ethers.providers.JsonRpcProvider(
-    `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-  )
   const notes = [
     'tornado-eth-1-1-0xf3f2510798052f2d951250aa67d462ad6d5442218fdf035966761a8baaead29b9813527acd43f435ad39a943d2db5e0b00b371189ed2fcc3abcfd65264ad',
     'tornado-eth-1-1-0x3f7b26d1251dea5c3d46cfa4a1205ea273c85c48f63b3e9a3c985a1b23df3841d9c32c1afda69eaa015d45a5c5bc9b3c2e4aa8aa9343702666a2471c5bf0',
@@ -152,10 +149,10 @@ describe('Proposal', () => {
     // const withdrawalData = require('./events/withdrawalData.json')
 
     // depositing fresh note
-    const depositReceipt = await depositNote({ note: notes[0], proxy: tornadoProxyV1 })
+    await depositNote({ note: notes[0], proxy: tornadoProxyV1 })
     // console.log('depositReciept', depositReceipt)
 
-    const withdrawReceipt = await withdrawNote({ note: notes[0], proxy: tornadoProxyV1 })
+    await withdrawNote({ note: notes[0], proxy: tornadoProxyV1 })
     // console.log('withdrawReciept', withdrawReceipt)
 
     console.log(`Uploading ${depositData.length} deposits and ${withdrawalData.length} withdrawals`)
@@ -189,6 +186,7 @@ describe('Proposal', () => {
     const { events, gasUsed } = await receipt.wait()
     console.log('Proposal execution took', gasUsed.toNumber())
 
+    // eslint-disable-next-line no-unused-vars
     let [verifierAddress, tornadoTreesImpl, tornadoTreesAddress, tornadoProxyAddress] = events.map(
       (e) => '0x' + e.data.slice(-40),
     )

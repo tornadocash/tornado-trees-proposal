@@ -62,6 +62,7 @@ async function getDepositData({ tornadoTreesAddress, fromBlock, step, provider, 
       break
     }
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const toBlock = Number(fromBlock) + Number(step)
       // console.log(`getting events from ${fromBlock} to ${toBlock}`)
@@ -100,6 +101,7 @@ async function getWithdrawalData({ tornadoTreesAddress, fromBlock, step, provide
       break
     }
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const toBlock = Number(fromBlock) + Number(step)
       // console.log(`getting events from ${fromBlock} to ${toBlock}`)
