@@ -3933,6 +3933,15 @@ ffjavascript@0.2.34, ffjavascript@^0.2.30:
     wasmcurves "0.0.14"
     worker-threads "^1.0.0"
 
+ffjavascript@^0.2.35:
+  version "0.2.35"
+  resolved "https://registry.yarnpkg.com/ffjavascript/-/ffjavascript-0.2.35.tgz#9166d95173b1c0a743b455bb03a72b581922a42e"
+  integrity sha512-xnC51tWbi0ah4SH+02jEfJyO+P+NiZWnxQrLDLtBYY1Dv3QM5ydxzd+gxnLEfWdT8i1bMM5pIh5P25l6fNCaVQ==
+  dependencies:
+    big-integer "^1.6.48"
+    wasmcurves "0.0.14"
+    web-worker "^1.0.0"
+
 ffwasm@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/ffwasm/-/ffwasm-0.0.7.tgz#23bb9a3537ecc87c0f24fcfb3a9ddd0e86855fff"
@@ -8117,17 +8126,17 @@ torn-token@^1.0.0:
     ethereumjs-util "^7.0.3"
     web3 "^1.2.11"
 
-tornado-anonymity-mining@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/tornado-anonymity-mining/-/tornado-anonymity-mining-2.0.1.tgz#352dfe1a2a119c59f2e9d89c4bca92b28fe5b6de"
-  integrity sha512-PHcqaXqotqCPewq0QI6ZZu6oK8rTH1iMXYDwbKKFFJRL7xzdd0B5xNkED7kht/1iNWaFwvnggQoqGKsyepE8gQ==
+tornado-anonymity-mining@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/tornado-anonymity-mining/-/tornado-anonymity-mining-2.0.2.tgz#60e31152aae1e1cc1c3f31f0a9c8ca7c6f50f77f"
+  integrity sha512-vD8f1YriBHFPeybRq/WHXWOERvrKaPTfbFZ5oZuxFXqEalh4LFhKgz7kWwlkMaZIxVGvkvvzoWnrNw1oGuhvaQ==
   dependencies:
     circomlib "git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
     decimal.js "^10.2.0"
     eth-sig-util "^2.5.3"
     fixed-merkle-tree "^0.3.4"
     snarkjs "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5"
-    tornado-trees "^0.0.4"
+    tornado-trees "^0.0.7"
     web3 "^1.2.11"
     websnark "git+https://github.com/tornadocash/websnark.git#86a526718cd6f6f5d31bdb1fe26a9ec8819f633e"
 
@@ -8147,21 +8156,6 @@ tornado-cli@0.0.1:
     web3 "^1.2.8"
     websnark "git+https://github.com/tornadocash/websnark.git#4c0af6a8b65aabea3c09f377f63c44e7a58afa6d"
 
-tornado-trees@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.4.tgz#568838277b01f23c9a4c01318231dea0a4af83f3"
-  integrity sha512-SL/tJ2TlY9tBpQJumg4ebKCtp5AyRxL+z+5SLhklf50E1n2GIUpETzCVqbqqSPplE6sVgpyAbFnnK1/MfGgNIQ==
-  dependencies:
-    circom "^0.5.38"
-    circom_runtime "^0.1.12"
-    circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
-    dotenv "^8.2.0"
-    ffiasm "^0.1.1"
-    fixed-merkle-tree "^0.5.0"
-    jssha "^3.2.0"
-    snarkjs "^0.3.57"
-    tmp-promise "^3.0.2"
-
 tornado-trees@^0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.7.tgz#4ce807c7b719c1519baf9859398c80263a47193b"
@@ -8174,6 +8168,24 @@ tornado-trees@^0.0.7:
     circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
     dotenv "^8.2.0"
     ffiasm "^0.1.1"
+    fixed-merkle-tree "^0.5.0"
+    jssha "^3.2.0"
+    snarkjs "^0.3.57"
+    tmp-promise "^3.0.2"
+
+tornado-trees@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.9.tgz#cf88f457f6222b48626d319726fd83a40bfb6adf"
+  integrity sha512-JPoCYkwVO+ggC0vNb3IhRhK0/695znstYssapmRK2VlKhdh0rV5JGMzDTX6IhXzAfMTf88K951XAwAkOKdQ0Vg==
+  dependencies:
+    "@openzeppelin/contracts" "^3.4.0"
+    "@openzeppelin/upgrades-core" "^1.5.1"
+    circom "^0.5.38"
+    circom_runtime "^0.1.12"
+    circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
+    dotenv "^8.2.0"
+    ffiasm "^0.1.1"
+    ffjavascript "^0.2.35"
     fixed-merkle-tree "^0.5.0"
     jssha "^3.2.0"
     snarkjs "^0.3.57"
@@ -8519,6 +8531,11 @@ wasmcurves@0.0.5:
   dependencies:
     big-integer "^1.6.42"
     blakejs "^1.1.0"
+
+web-worker@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/web-worker/-/web-worker-1.0.0.tgz#c7ced4e1eb6227636ada35056a9e5a477414e4d0"
+  integrity sha512-BzuMqeKVkKKwHV6tJuwePFcxYMxvC97D448mXTgh/CxXAB4sRtoV26gRPN+JDxsXRR7QZyioMV9O6NzQaASf7Q==
 
 web3-bzz@1.2.11:
   version "1.2.11"

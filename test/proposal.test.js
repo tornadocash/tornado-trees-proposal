@@ -189,7 +189,7 @@ describe('Proposal', () => {
     const { events, gasUsed } = await receipt.wait()
     console.log('Proposal execution took', gasUsed.toNumber())
 
-    let [verifierAddress, tornadoTreesAddress, tornadoProxyAddress] = events.map(
+    let [verifierAddress, tornadoTreesImpl, tornadoTreesAddress, tornadoProxyAddress] = events.map(
       (e) => '0x' + e.data.slice(-40),
     )
     tornadoProxy = await ethers.getContractAt(require('../artifacts/tornado-anonymity-mining/contracts/TornadoProxy.sol/TornadoProxy.json').abi, tornadoProxyAddress)

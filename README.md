@@ -15,9 +15,10 @@ $ cp .env.example .env
 $ vi .env
 ```
 
-## Mainnet testing
+## testing
 
 ```bash
+$ yarn changeTreeHeight
 $ npx hardhat test
 ```
 

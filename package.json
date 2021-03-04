@@ -15,7 +15,8 @@
     "eslint": "eslint --ext .js --ignore-path .gitignore .",
     "prettier:check": "prettier --check . --config .prettierrc",
     "prettier:fix": "prettier --write . --config .prettierrc",
-    "lint": "yarn eslint && yarn prettier:check"
+    "lint": "yarn eslint && yarn prettier:check",
+    "changeTreeHeight": "cd node_modules/tornado-trees && yarn changeTreeHeight 2"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
@@ -37,10 +38,9 @@
     "eth-ens-namehash": "^2.0.8",
     "fixed-merkle-tree": "^0.5.0",
     "jszip": "^3.6.0",
-    "snarkjs": "^0.3.57",
     "torn-token": "^1.0.0",
-    "tornado-anonymity-mining": "^2.0.1",
+    "tornado-anonymity-mining": "^2.0.2",
     "tornado-cli": "0.0.1",
-    "tornado-trees": "^0.0.7"
+    "tornado-trees": "^0.0.9"
   }
 }
