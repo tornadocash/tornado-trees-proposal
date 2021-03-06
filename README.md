@@ -1,6 +1,6 @@
 # Tornado.cash trees governance proposal [![Build Status](https://github.com/tornadocash/tornado-trees-proposal/workflows/build/badge.svg)](https://github.com/tornadocash/tornado-trees-proposal/actions)
 
-This repo deploys governance proposal for [TornadoTrees](https://github.com/tornadocash/tornado-trees) update.
+This repo deploys governance proposal for [TornadoTrees](https://github.com/tornadocash/tornado-trees) update. It significantly reduces the cost of updating tornado merkle trees by offloading onchain updates to zkSNARKs.
 
 ## Dependencies
 

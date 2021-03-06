@@ -27,6 +27,7 @@ contract Proposal {
 
   event Deployed(address _contract);
 
+  // params used to search for array lengths on V1 contracts
   uint256 private immutable depositsFrom;
   uint256 private immutable depositsStep;
   uint256 private immutable withdrawalsFrom;
@@ -45,13 +46,13 @@ contract Proposal {
   }
 
   function executeProposal() public {
-    // Disable registering new deposits on old tornado proxy
+    // Disable all instances on old tornado proxy
     address[4] memory miningInstances = getEthInstances();
     for (uint256 i = 0; i < miningInstances.length; i++) {
       tornadoProxyV1.updateInstance(miningInstances[i], false);
     }
 
-    // Deploy snark verifier form the merkle tree updates
+    // Deploy snark verifier contract for the merkle tree updates
     BatchTreeUpdateVerifier verifier = new BatchTreeUpdateVerifier();
     emit Deployed(address(verifier));
 
@@ -114,9 +115,11 @@ contract Proposal {
     instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
 
     for (uint256 i = 0; i < miningInstances.length; i++) {
+      // Enable mining for ETH instances
       instances[i] = TornadoProxy.Instance(miningInstances[i], TornadoProxy.InstanceState.Mineable);
     }
     for (uint256 i = 0; i < allowedInstances.length; i++) {
+      // ERC20 are only allowed on proxy without enabling mining for them
       instances[miningInstances.length + i] = TornadoProxy.Instance(allowedInstances[i], TornadoProxy.InstanceState.Enabled);
     }
   }
