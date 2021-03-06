@@ -1,6 +1,17 @@
 /*
 
-This is a proposal to update TornadoTrees smart contract
+This is a proposal to update TornadoTrees smart contract. It significantly reduces the cost of
+updating tornado merkle trees by offloading onchain updates to zkSNARKs.
+
+The proposal will:
+- disable old tornado proxy
+- deploy new contracts:
+  - BatchTreeUpdateVerifier - snark verifier contract
+  - TornadoTrees - new contract for tree updates
+  - AdminUpgradeableProxy - upgradeability proxy for TornadoTrees
+  - TornadoProxy - new tornado proxy
+- migrate state from old TornadoTrees contract to the new one
+- set deployed AdminUpgradeableProxy as new a tree contract in Miner
 
 // todo update description and forum link
 More info: https://torn.community/t/anonymity-mining-technical-overview/15/18
