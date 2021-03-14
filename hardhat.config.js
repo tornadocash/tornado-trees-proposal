@@ -13,8 +13,12 @@ task('namehashes', 'Prints the list of tornado instances and corresponding ens n
   const allowed = [
     'dai-100.tornadocash.eth',
     'dai-1000.tornadocash.eth',
+    'dai-10000.tornadocash.eth',
+    'dai-100000.tornadocash.eth',
     'cdai-5000.tornadocash.eth',
     'cdai-50000.tornadocash.eth',
+    'cdai-500000.tornadocash.eth',
+    'cdai-5000000.tornadocash.eth',
     'usdc-100.tornadocash.eth',
     'usdc-1000.tornadocash.eth',
     'usdt-100.tornadocash.eth',

@@ -202,6 +202,7 @@ describe('Proposal', () => {
       expect(mineable).to.be.equal(2)
     }
 
+    // todo add more instances
     for (let i = 0; i < erc20Instances.length; i++) {
       const enabled = await tornadoProxy.instances(erc20Instances[i])
       expect(enabled).to.be.equal(1)

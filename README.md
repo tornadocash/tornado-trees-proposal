@@ -27,6 +27,7 @@ $ npx hardhat test
 ### #before proposal creation
 
 1. have you added new instances on the UI?
+2. make sure you have set all the ens names for the instances
 
 ### #proposal creation
 

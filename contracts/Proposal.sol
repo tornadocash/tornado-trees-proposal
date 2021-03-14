@@ -27,11 +27,12 @@ import "tornado-trees/contracts/interfaces/IBatchTreeUpdateVerifier.sol";
 import "tornado-trees/contracts/TornadoTrees.sol";
 import "tornado-trees/contracts/AdminUpgradeableProxy.sol";
 import "tornado-anonymity-mining/contracts/TornadoProxy.sol";
+import "torn-token/contracts/ENS.sol";
 import "./interfaces/ITornadoProxyV1.sol";
 import "./interfaces/IMiner.sol";
 import "./verifiers/BatchTreeUpdateVerifier.sol";
 
-contract Proposal {
+contract Proposal is EnsResolve {
   ITornadoTreesV1 public constant tornadoTreesV1 = ITornadoTreesV1(0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417);
   ITornadoProxyV1 public constant tornadoProxyV1 = ITornadoProxyV1(0x905b63Fff465B9fFBF41DeA908CEb12478ec7601);
   IMiner public constant miner = IMiner(0x746Aebc06D2aE31B71ac51429A19D54E797878E9);
@@ -58,9 +59,9 @@ contract Proposal {
 
   function executeProposal() public {
     // Disable all instances on old tornado proxy
-    address[4] memory miningInstances = getEthInstances();
+    bytes32[4] memory miningInstances = getEthInstances();
     for (uint256 i = 0; i < miningInstances.length; i++) {
-      tornadoProxyV1.updateInstance(miningInstances[i], false);
+      tornadoProxyV1.updateInstance(resolve(miningInstances[i]), false);
     }
 
     // Deploy snark verifier contract for the merkle tree updates
@@ -97,41 +98,47 @@ contract Proposal {
       });
   }
 
-  function getEthInstances() public pure returns (address[4] memory) {
+  function getEthInstances() public view returns (bytes32[4] memory) {
     return [
-      address(0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc),
-      address(0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936),
-      address(0x910Cbd523D972eb0a6f4cAe4618aD62622b39DbF),
-      address(0xA160cdAB225685dA1d56aa342Ad8841c3b53f291)
+      bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a), // eth-01.tornadocash.eth
+      bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b), // eth-1.tornadocash.eth
+      bytes32(0x917e42347647689051abc744f502bff342c76ad30c0670b46b305b2f7e1f893d), // eth-10.tornadocash.eth
+      bytes32(0xddfc726d74f912f49389ef7471e75291969852ce7e5df0509a17bc1e46646985) //  eth-100.tornadocash.eth
     ];
   }
 
-  // todo should we add more instances? usdt-100000 ?
-  function getErc20Instances() public pure returns (address[8] memory) {
+  function getErc20Instances() public view returns (bytes32[12] memory) {
     return [
-      address(0xD4B88Df4D29F5CedD6857912842cff3b20C8Cfa3),
-      address(0xFD8610d20aA15b7B2E3Be39B396a1bC3516c7144),
-      address(0x22aaA7720ddd5388A3c0A3333430953C68f1849b),
-      address(0xBA214C1c1928a32Bffe790263E38B4Af9bFCD659),
-      address(0xd96f2B1c14Db8458374d9Aca76E26c3D18364307),
-      address(0x4736dCf1b7A3d580672CcE6E7c65cd5cc9cFBa9D),
-      address(0x169AD27A470D064DEDE56a2D3ff727986b15D52B),
-      address(0x0836222F2B2B24A3F36f98668Ed8F0B38D1a872f)
+      bytes32(0x95ad5771ba164db3fc73cc74d4436cb6a6babd7a2774911c69d8caae30410982), // dai-100.tornadocash.eth
+      bytes32(0x109d0334da83a2c3a687972cc806b0eda52ee7a30f3e44e77b39ae2a20248321), // dai-1000.tornadocash.eth
+      bytes32(0x3de4b55be5058f538617d5a6a72bff5b5850a239424b34cc5271021cfcc4ccc8), // dai-10000.tornadocash.eth
+      bytes32(0xf50559e0d2f0213bcb8c67ad45b93308b46b9abdd5ca9c7044efc025fc557f59), // dai-100000.tornadocash.eth
+      bytes32(0xc9395879ffcee571b0dfd062153b27d62a6617e0f272515f2eb6259fe829c3df), // cdai-5000.tornadocash.eth
+      bytes32(0xf840ad6cba4dbbab0fa58a13b092556cd53a6eeff716a3c4a41d860a888b6155), // cdai-50000.tornadocash.eth
+      bytes32(0x8e52ade66daf81cf3f50053e9bfca86a57d685eca96bf6c0b45da481806952b1), // cdai-500000.tornadocash.eth
+      bytes32(0x0b86f5b8c2f9dcd95382a469480b35302eead707f3fd36359e346b59f3591de2), // cdai-5000000.tornadocash.eth
+      bytes32(0xd49809328056ea7b7be70076070bf741ec1a27b86bebafdc484eee88c1834191), // usdc-100.tornadocash.eth
+      bytes32(0x77e2b15eddc494b6da6cee0d797ed30ed3945f2c7de0150f16f0405a12e5665f), // usdc-1000.tornadocash.eth
+      bytes32(0x36bab2c045f88613be6004ec1dc0c3937941fcf4d4cb78d814c933bf1cf25baf), // usdt-100.tornadocash.eth
+      bytes32(0x7a3b0883165756c26821d9b8c9737166a156a78b478b17e42da72fba7a373356) //  usdt-1000.tornadocash.eth
     ];
   }
 
-  function getInstances() public pure returns (TornadoProxy.Instance[] memory instances) {
-    address[4] memory miningInstances = getEthInstances();
-    address[8] memory allowedInstances = getErc20Instances();
+  function getInstances() public view returns (TornadoProxy.Instance[] memory instances) {
+    bytes32[4] memory miningInstances = getEthInstances();
+    bytes32[12] memory allowedInstances = getErc20Instances();
     instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
 
     for (uint256 i = 0; i < miningInstances.length; i++) {
       // Enable mining for ETH instances
-      instances[i] = TornadoProxy.Instance(miningInstances[i], TornadoProxy.InstanceState.Mineable);
+      instances[i] = TornadoProxy.Instance(resolve(miningInstances[i]), TornadoProxy.InstanceState.Mineable);
     }
     for (uint256 i = 0; i < allowedInstances.length; i++) {
       // ERC20 are only allowed on proxy without enabling mining for them
-      instances[miningInstances.length + i] = TornadoProxy.Instance(allowedInstances[i], TornadoProxy.InstanceState.Enabled);
+      instances[miningInstances.length + i] = TornadoProxy.Instance(
+        resolve(allowedInstances[i]),
+        TornadoProxy.InstanceState.Enabled
+      );
     }
   }
 }
