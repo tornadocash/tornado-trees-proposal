@@ -169,7 +169,6 @@ describe('Proposal', () => {
     }
 
     const Proposal = await ethers.getContractFactory('Proposal')
-    // todo for mainnet use  `npx hardhat searchParams`
     const proposal = await Proposal.deploy(820, 10, 340, 10)
 
     torn = torn.connect(tornWhale)
