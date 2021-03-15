@@ -32,15 +32,14 @@ $ npx hardhat test
 ### #proposal creation
 
 1. go to tornado-tress repo
-1. `yarn changeTreeHeight 8`
 1. `docker build . -t tornadocash/tornado-trees` you will need 50GB RAM
 1. `docker run --rm -it --name tornadoTrees tornadocash/tornado-trees bash` just leave it and go to the next steps
-1. `d cp tornadoTrees:/app/artifacts/circuits/* backup`
+1. `docker cp tornadoTrees:/app/artifacts/circuits/* backup`
 1. send the backup folder to telegram
 
 1. go to proposal repo
 1. add the new instances to the proposal contract
-1. `d cp tornadoTrees:/app/artifacts/circuits/BatchTreeUpdateVerifier.sol snarks`
+1. `docker cp tornadoTrees:/app/artifacts/circuits/BatchTreeUpdateVerifier.sol snarks`
 1. `npx hardhat searchParams` and use the output in deployMainnet script
 1. `yarn deployMainnet`
 1. test the proposal on fork
