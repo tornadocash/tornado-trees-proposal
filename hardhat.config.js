@@ -122,6 +122,12 @@ const config = {
         ? [process.env.PRIVATE_KEY]
         : { mnemonic: 'test test test test test test test test test test test junk' },
     },
+    goerli: {
+      url: `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+      accounts: process.env.PRIVATE_KEY
+        ? [process.env.PRIVATE_KEY]
+        : { mnemonic: 'test test test test test test test test test test test junk' },
+    },
     mainnetInfura: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
       accounts: process.env.PRIVATE_KEY

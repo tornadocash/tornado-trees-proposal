@@ -38,8 +38,8 @@ $ npx hardhat test
 1. send the backup folder to telegram
 
 1. go to proposal repo
-1. add the new instances to the proposal contract
 1. `docker cp tornadoTrees:/app/artifacts/circuits/BatchTreeUpdateVerifier.sol snarks`
+1. edit `env`
 1. `npx hardhat searchParams` and use the output in deployMainnet script
 1. `yarn deployMainnet`
 1. test the proposal on fork
