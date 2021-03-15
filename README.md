@@ -62,8 +62,7 @@ $ npx hardhat test
 
 #### root updater
 
-1. go to root-updater repo
-1. checkout migration branch
+1. `git clone https://github.com/tornadocash/tornado-root-updater.git -b migration && cd tornado-root-updater`
 1. edit `.env`
 1. run `generateCacheEvents` (uncomment last lines there 1 by 1)
 1. `docker build . -t tornadocash/tornado-root-updater` should be run on the same server as for `tornado-trees`
