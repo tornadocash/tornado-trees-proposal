@@ -43,8 +43,9 @@ $ npx hardhat test
 1. `npx hardhat searchParams` and use the output in deployMainnet script
 1. `yarn deployMainnet`
 1. test the proposal on fork
-1. verify on etherscan
+1. verify on etherscan (add ASCII!!)
 1. create proposal on forum to ask community to create the governance proposal
+1. `goerli`: deposit and withdraw 500 deps using bot
 
 ### #during voting
 
@@ -65,7 +66,7 @@ $ npx hardhat test
 1. checkout migration branch
 1. edit `.env`
 1. run `generateCacheEvents` (uncomment last lines there 1 by 1)
-1. docker build . -t tornadocash/tornado-root-updater
+1. `docker build . -t tornadocash/tornado-root-updater` should be run on the same server as for `tornado-trees`
 1. run both
 
 - `docker run --rm -e MIGRATION_TYPE=deposit tornadocash/tornado-root-updater`

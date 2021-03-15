@@ -3,7 +3,7 @@ const { ethers } = require('hardhat')
 async function main() {
   // accounts = await ethers.getSigners()
   const Proposal = await ethers.getContractFactory('Proposal')
-  const proposal = await Proposal.deploy(/*13451, 44, 8876, 27*/)
+  const proposal = await Proposal.deploy(/*2574, 7, 2067, 5*/)
 
   console.log(`Proposal: ${proposal.address}`)
 }
