@@ -160,7 +160,7 @@ const config = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: '',
+    apiKey: process.env.ETHERSCAN_KEY,
   },
   mocha: {
     timeout: 600000,
