@@ -24,6 +24,9 @@ task('namehashes', 'Prints the list of tornado instances and corresponding ens n
     'usdc-1000.tornadocash.eth',
     'usdt-100.tornadocash.eth',
     'usdt-1000.tornadocash.eth',
+    'wbtc-01.tornadocash.eth',
+    'wbtc-1.tornadocash.eth',
+    'wbtc-10.tornadocash.eth',
   ]
   console.log('Allowed instances:')
   allowed.forEach((name) => {

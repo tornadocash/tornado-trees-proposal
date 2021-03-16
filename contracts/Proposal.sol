@@ -98,7 +98,7 @@ contract Proposal is EnsResolve {
       });
   }
 
-  function getEthInstances() public view returns (bytes32[4] memory) {
+  function getEthInstances() public pure returns (bytes32[4] memory) {
     return [
       bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a), // eth-01.tornadocash.eth
       bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b), // eth-1.tornadocash.eth
@@ -107,7 +107,7 @@ contract Proposal is EnsResolve {
     ];
   }
 
-  function getErc20Instances() public view returns (bytes32[12] memory) {
+  function getErc20Instances() public pure returns (bytes32[15] memory) {
     return [
       bytes32(0x95ad5771ba164db3fc73cc74d4436cb6a6babd7a2774911c69d8caae30410982), // dai-100.tornadocash.eth
       bytes32(0x109d0334da83a2c3a687972cc806b0eda52ee7a30f3e44e77b39ae2a20248321), // dai-1000.tornadocash.eth
@@ -120,13 +120,16 @@ contract Proposal is EnsResolve {
       bytes32(0xd49809328056ea7b7be70076070bf741ec1a27b86bebafdc484eee88c1834191), // usdc-100.tornadocash.eth
       bytes32(0x77e2b15eddc494b6da6cee0d797ed30ed3945f2c7de0150f16f0405a12e5665f), // usdc-1000.tornadocash.eth
       bytes32(0x36bab2c045f88613be6004ec1dc0c3937941fcf4d4cb78d814c933bf1cf25baf), // usdt-100.tornadocash.eth
-      bytes32(0x7a3b0883165756c26821d9b8c9737166a156a78b478b17e42da72fba7a373356) //  usdt-1000.tornadocash.eth
+      bytes32(0x7a3b0883165756c26821d9b8c9737166a156a78b478b17e42da72fba7a373356), // usdt-1000.tornadocash.eth
+      bytes32(0x10ca74c40211fa1598f0531f35c7d54c19c808082aad53c72ad1fb22ea94ab83), // wbtc-01.tornadocash.eth
+      bytes32(0x6cea0cba8e46fc4ffaf837edf544ba36e5a35503636c6bca4578e965ab640e2c), // wbtc-1.tornadocash.eth
+      bytes32(0x82c57bf2f80547b5e31b92c1f92c4f8bc02ad0df3d27326373e9f55adda5bd15) //  wbtc-10.tornadocash.eth
     ];
   }
 
   function getInstances() public view returns (TornadoProxy.Instance[] memory instances) {
     bytes32[4] memory miningInstances = getEthInstances();
-    bytes32[12] memory allowedInstances = getErc20Instances();
+    bytes32[15] memory allowedInstances = getErc20Instances();
     instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
 
     for (uint256 i = 0; i < miningInstances.length; i++) {
