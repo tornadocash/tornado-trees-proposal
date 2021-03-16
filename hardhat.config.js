@@ -1,6 +1,7 @@
 /* global task, ethers */
 require('dotenv').config()
 require('@nomiclabs/hardhat-waffle')
+require('@nomiclabs/hardhat-etherscan')
 const ens = require('eth-ens-namehash')
 
 task('namehashes', 'Prints the list of tornado instances and corresponding ens namehashes', () => {
@@ -155,6 +156,11 @@ const config = {
       gasPrice: 0,
       timeout: 999999999,
     },
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: '',
   },
   mocha: {
     timeout: 600000,

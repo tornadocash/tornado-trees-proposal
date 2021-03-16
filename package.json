@@ -34,6 +34,7 @@
     "solhint-plugin-prettier": "^0.0.5"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^2.1.1",
     "dotenv": "^8.2.0",
     "eth-ens-namehash": "^2.0.8",
     "fixed-merkle-tree": "^0.5.0",
