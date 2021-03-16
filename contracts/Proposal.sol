@@ -27,6 +27,7 @@ import "tornado-trees/contracts/interfaces/IBatchTreeUpdateVerifier.sol";
 import "tornado-trees/contracts/TornadoTrees.sol";
 import "tornado-trees/contracts/AdminUpgradeableProxy.sol";
 import "tornado-anonymity-mining/contracts/TornadoProxy.sol";
+import "tornado-anonymity-mining/contracts/interfaces/ITornadoInstance.sol";
 import "torn-token/contracts/ENS.sol";
 import "./interfaces/ITornadoProxyV1.sol";
 import "./interfaces/IMiner.sol";
@@ -127,21 +128,29 @@ contract Proposal is EnsResolve {
     ];
   }
 
-  function getInstances() public view returns (TornadoProxy.Instance[] memory instances) {
+  function getInstances() public view returns (TornadoProxy.Tornado[] memory instances) {
     bytes32[4] memory miningInstances = getEthInstances();
     bytes32[15] memory allowedInstances = getErc20Instances();
-    instances = new TornadoProxy.Instance[](allowedInstances.length + miningInstances.length);
+    instances = new TornadoProxy.Tornado[](allowedInstances.length + miningInstances.length);
 
     for (uint256 i = 0; i < miningInstances.length; i++) {
       // Enable mining for ETH instances
-      instances[i] = TornadoProxy.Instance(resolve(miningInstances[i]), TornadoProxy.InstanceState.Mineable);
+      instances[i] = TornadoProxy.Tornado(
+        ITornadoInstance(resolve(miningInstances[i])),
+        TornadoProxy.Instance({ isERC20: false, token: IERC20(address(0)), state: TornadoProxy.InstanceState.Mineable })
+      );
     }
     for (uint256 i = 0; i < allowedInstances.length; i++) {
       // ERC20 are only allowed on proxy without enabling mining for them
-      instances[miningInstances.length + i] = TornadoProxy.Instance(
-        resolve(allowedInstances[i]),
-        TornadoProxy.InstanceState.Enabled
-      );
+      ITornadoInstance instance = ITornadoInstance(resolve(allowedInstances[i]));
+      instances[miningInstances.length + i] = TornadoProxy.Tornado({
+        addr: instance,
+        instance: TornadoProxy.Instance({
+          isERC20: true,
+          token: IERC20(instance.token()),
+          state: TornadoProxy.InstanceState.Enabled
+        })
+      });
     }
   }
 }

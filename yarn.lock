@@ -8178,10 +8178,10 @@ torn-token@^1.0.0:
     ethereumjs-util "^7.0.3"
     web3 "^1.2.11"
 
-tornado-anonymity-mining@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/tornado-anonymity-mining/-/tornado-anonymity-mining-2.0.2.tgz#60e31152aae1e1cc1c3f31f0a9c8ca7c6f50f77f"
-  integrity sha512-vD8f1YriBHFPeybRq/WHXWOERvrKaPTfbFZ5oZuxFXqEalh4LFhKgz7kWwlkMaZIxVGvkvvzoWnrNw1oGuhvaQ==
+tornado-anonymity-mining@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/tornado-anonymity-mining/-/tornado-anonymity-mining-2.1.1.tgz#53381bad01fbe71bcb5eeab99c56a28a5ed1682d"
+  integrity sha512-+GPRofVhdNyLUX06p6LxT9IfHBH+aTohJTqTVpcAVmDgfNzKdpmFCNRq/QJrqrhQYWduOxNa+3JR/oTF7NInOw==
   dependencies:
     circomlib "git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
     decimal.js "^10.2.0"
@@ -8208,6 +8208,24 @@ tornado-cli@0.0.1:
     web3 "^1.2.8"
     websnark "git+https://github.com/tornadocash/websnark.git#4c0af6a8b65aabea3c09f377f63c44e7a58afa6d"
 
+tornado-trees@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.10.tgz#1557a842554ffbd429c8c90c88799852d173b8a7"
+  integrity sha512-YRzVR+BG31aXTAuJf2BGySlj/d6D42mcSibf+4+AifD+/T8cngPXXK72sjIVRIiDhaJBtKbcAu0jOoLNvkQiRw==
+  dependencies:
+    "@openzeppelin/contracts" "^3.4.0"
+    "@openzeppelin/upgrades-core" "^1.5.1"
+    circom "^0.5.38"
+    circom_runtime "^0.1.12"
+    circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
+    dotenv "^8.2.0"
+    ffiasm "^0.1.1"
+    ffjavascript "^0.2.35"
+    fixed-merkle-tree "^0.5.0"
+    jssha "^3.2.0"
+    snarkjs "^0.3.57"
+    tmp-promise "^3.0.2"
+
 tornado-trees@^0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.7.tgz#4ce807c7b719c1519baf9859398c80263a47193b"
@@ -8220,24 +8238,6 @@ tornado-trees@^0.0.7:
     circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
     dotenv "^8.2.0"
     ffiasm "^0.1.1"
-    fixed-merkle-tree "^0.5.0"
-    jssha "^3.2.0"
-    snarkjs "^0.3.57"
-    tmp-promise "^3.0.2"
-
-tornado-trees@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/tornado-trees/-/tornado-trees-0.0.9.tgz#cf88f457f6222b48626d319726fd83a40bfb6adf"
-  integrity sha512-JPoCYkwVO+ggC0vNb3IhRhK0/695znstYssapmRK2VlKhdh0rV5JGMzDTX6IhXzAfMTf88K951XAwAkOKdQ0Vg==
-  dependencies:
-    "@openzeppelin/contracts" "^3.4.0"
-    "@openzeppelin/upgrades-core" "^1.5.1"
-    circom "^0.5.38"
-    circom_runtime "^0.1.12"
-    circomlib "git+https://github.com/tornadocash/circomlib.git#d20d53411d1bef61f38c99a8b36d5d0cc4836aa1"
-    dotenv "^8.2.0"
-    ffiasm "^0.1.1"
-    ffjavascript "^0.2.35"
     fixed-merkle-tree "^0.5.0"
     jssha "^3.2.0"
     snarkjs "^0.3.57"
