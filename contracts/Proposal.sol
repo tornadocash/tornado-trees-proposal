@@ -98,7 +98,7 @@ contract Proposal is EnsResolve {
       });
   }
 
-  function getEthInstances() public pure returns (bytes32[4] memory) {
+  function getEthInstances() internal pure returns (bytes32[4] memory) {
     return [
       bytes32(0xc041982b4f77cbbd82ef3b9ea748738ac6c281d3f1af198770d29f75ac32d80a), // eth-01.tornadocash.eth
       bytes32(0x9e5bc9215eecd103644145a5db4f69d5efaf4885bb5bf968f8db271ec5cd539b), // eth-1.tornadocash.eth
@@ -107,7 +107,7 @@ contract Proposal is EnsResolve {
     ];
   }
 
-  function getErc20Instances() public pure returns (bytes32[15] memory) {
+  function getErc20Instances() internal pure returns (bytes32[15] memory) {
     return [
       bytes32(0x95ad5771ba164db3fc73cc74d4436cb6a6babd7a2774911c69d8caae30410982), // dai-100.tornadocash.eth
       bytes32(0x109d0334da83a2c3a687972cc806b0eda52ee7a30f3e44e77b39ae2a20248321), // dai-1000.tornadocash.eth
