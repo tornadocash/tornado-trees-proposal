@@ -37,7 +37,7 @@ contract Proposal is EnsResolve {
   ITornadoProxyV1 public constant tornadoProxyV1 = ITornadoProxyV1(0x905b63Fff465B9fFBF41DeA908CEb12478ec7601);
   IMiner public constant miner = IMiner(0x746Aebc06D2aE31B71ac51429A19D54E797878E9);
 
-  event Deployed(address _contract);
+  event DeploymentOf(string name, address addr);
 
   address public immutable verifier;
 
@@ -70,16 +70,16 @@ contract Proposal is EnsResolve {
 
     // Deploy new TornadoTrees implementation
     TornadoTrees tornadoTreesImpl = new TornadoTrees(address(this), tornadoTreesV1, getSearchParams());
-    emit Deployed(address(tornadoTreesImpl));
+    emit DeploymentOf("TornadoTrees implementation", address(tornadoTreesImpl));
 
     // Deploy TornadoTrees upgradeable proxy
-    emit Deployed(address(upgradeableProxy));
     AdminUpgradeableProxy upgradeableProxy = new AdminUpgradeableProxy(address(tornadoTreesImpl), address(this), "");
     TornadoTrees tornadoTrees = TornadoTrees(address(upgradeableProxy));
+    emit DeploymentOf("TornadoTrees upgradeable proxy", address(upgradeableProxy));
 
     // Deploy new TornadoProxy
-    emit Deployed(address(proxy));
     TornadoProxy tornadoProxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
+    emit DeploymentOf("TornadoProxy", address(tornadoProxy));
 
     // Init tornado trees
     tornadoTrees.initialize(address(tornadoProxy), IBatchTreeUpdateVerifier(verifier));
