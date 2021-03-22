@@ -5,4 +5,4 @@ circuits
 contracts/verifiers
 test/abis
 snarks
-
+test/events
