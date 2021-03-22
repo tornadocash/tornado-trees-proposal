@@ -31,7 +31,6 @@ import "tornado-anonymity-mining/contracts/interfaces/ITornadoInstance.sol";
 import "torn-token/contracts/ENS.sol";
 import "./interfaces/ITornadoProxyV1.sol";
 import "./interfaces/IMiner.sol";
-import "./verifiers/BatchTreeUpdateVerifier.sol";
 
 contract Proposal is EnsResolve {
   ITornadoTreesV1 public constant tornadoTreesV1 = ITornadoTreesV1(0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417);
@@ -40,6 +39,8 @@ contract Proposal is EnsResolve {
 
   event Deployed(address _contract);
 
+  address public immutable verifier;
+
   // params used to search for array lengths on V1 contracts
   uint256 private immutable depositsFrom;
   uint256 private immutable depositsStep;
@@ -47,11 +48,13 @@ contract Proposal is EnsResolve {
   uint256 private immutable withdrawalsStep;
 
   constructor(
+    address _verifier,
     uint256 _depositsFrom,
     uint256 _depositsStep,
     uint256 _withdrawalsFrom,
     uint256 _withdrawalsStep
   ) public {
+    verifier = _verifier;
     depositsFrom = _depositsFrom;
     depositsStep = _depositsStep;
     withdrawalsFrom = _withdrawalsFrom;
@@ -64,10 +67,6 @@ contract Proposal is EnsResolve {
     for (uint256 i = 0; i < miningInstances.length; i++) {
       tornadoProxyV1.updateInstance(resolve(miningInstances[i]), false);
     }
-
-    // Deploy snark verifier contract for the merkle tree updates
-    BatchTreeUpdateVerifier verifier = new BatchTreeUpdateVerifier();
-    emit Deployed(address(verifier));
 
     // Deploy new TornadoTrees implementation
     TornadoTrees tornadoTreesImpl = new TornadoTrees(address(this), tornadoTreesV1, getSearchParams());
