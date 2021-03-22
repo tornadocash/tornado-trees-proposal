@@ -78,11 +78,11 @@ contract Proposal is EnsResolve {
     TornadoTrees tornadoTrees = TornadoTrees(address(upgradeableProxy));
 
     // Deploy new TornadoProxy
-    TornadoProxy proxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
     emit Deployed(address(proxy));
+    TornadoProxy tornadoProxy = new TornadoProxy(address(tornadoTrees), address(this), getInstances());
 
     // Init tornado trees
-    tornadoTrees.initialize(address(proxy), IBatchTreeUpdateVerifier(address(verifier)));
+    tornadoTrees.initialize(address(tornadoProxy), IBatchTreeUpdateVerifier(verifier));
 
     // Update TornadoTrees address on the mining contract
     miner.setTornadoTreesContract(address(tornadoTrees));
