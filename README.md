@@ -18,8 +18,7 @@ $ vi .env
 ## testing
 
 ```bash
-$ yarn changeTreeHeight
-$ npx hardhat test
+$ docker build . -t tornadocash/tornado-trees-proposal && docker run -v `pwd`/proofsCache:/app/proofsCache tornadocash/tornado-trees-proposal
 ```
 
 ## mainnet instructions
