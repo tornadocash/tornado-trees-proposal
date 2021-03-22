@@ -74,8 +74,8 @@ contract Proposal is EnsResolve {
     emit Deployed(address(tornadoTreesImpl));
 
     // Deploy TornadoTrees upgradeable proxy
-    AdminUpgradeableProxy upgradeableProxy = new AdminUpgradeableProxy(address(tornadoTreesImpl), "");
     emit Deployed(address(upgradeableProxy));
+    AdminUpgradeableProxy upgradeableProxy = new AdminUpgradeableProxy(address(tornadoTreesImpl), address(this), "");
     TornadoTrees tornadoTrees = TornadoTrees(address(upgradeableProxy));
 
     // Deploy new TornadoProxy
@@ -137,7 +137,7 @@ contract Proposal is EnsResolve {
       // Enable mining for ETH instances
       instances[i] = TornadoProxy.Tornado(
         ITornadoInstance(resolve(miningInstances[i])),
-        TornadoProxy.Instance({ isERC20: false, token: IERC20(address(0)), state: TornadoProxy.InstanceState.Mineable })
+        TornadoProxy.Instance({ isERC20: false, token: IERC20(address(0)), state: TornadoProxy.InstanceState.MINEABLE })
       );
     }
     for (uint256 i = 0; i < allowedInstances.length; i++) {
@@ -148,7 +148,7 @@ contract Proposal is EnsResolve {
         instance: TornadoProxy.Instance({
           isERC20: true,
           token: IERC20(instance.token()),
-          state: TornadoProxy.InstanceState.Enabled
+          state: TornadoProxy.InstanceState.ENABLED
         })
       });
     }
