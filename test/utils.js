@@ -30,6 +30,19 @@ const erc20Instances = [
   '0x0836222F2B2B24A3F36f98668Ed8F0B38D1a872f', // usdt-1000.tornadocash.eth
 ]
 
+const instances = {
+  0.1: '0x12D66f87A04A9E220743712cE6d9bB1B5616B8Fc',
+  1: '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936',
+  10: '0x910Cbd523D972eb0a6f4cAe4618aD62622b39DbF',
+  100: '0xA160cdAB225685dA1d56aa342Ad8841c3b53f291',
+}
+const rates = {
+  0.1: 10,
+  1: 20,
+  10: 50,
+  100: 400,
+}
+
 async function setTime(timestamp) {
   await ethers.provider.send('evm_setNextBlockTimestamp', [timestamp])
 }
@@ -56,10 +69,13 @@ async function getSignerFromAddress(address) {
   return await ethers.provider.getSigner(address)
 }
 
-async function getDepositData({ tornadoTreesAddress, fromBlock, step, provider, batchSize }) {
+async function getDepositData({ tornadoTreesAddress, provider, batchSize, skip = 0 }) {
+  process.stdout.write('Started getting deposits')
   const tornadoTrees = new ethers.Contract(tornadoTreesAddress, tornadoTreesAbi, provider)
-  const lastProcessedDepositLeaf = (await tornadoTrees.lastProcessedDepositLeaf()).toNumber()
+  const lastProcessedDepositLeaf = (await tornadoTrees.lastProcessedDepositLeaf()).toNumber() + skip
+  console.log('lastProcessedDepositLeaf', lastProcessedDepositLeaf)
   const depositData = []
+  const depositsCache = require('./events/deposit.json')
   for (let i = lastProcessedDepositLeaf; i < lastProcessedDepositLeaf + batchSize; i++) {
     let nextDeposit
     try {
@@ -69,36 +85,25 @@ async function getDepositData({ tornadoTreesAddress, fromBlock, step, provider, 
       break
     }
 
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const toBlock = Number(fromBlock) + Number(step)
-      // console.log(`getting events from ${fromBlock} to ${toBlock}`)
-      const tornadoEvents = await getTornadoEvents({
-        instances: ethInstances,
-        fromBlock,
-        toBlock,
-        type: 'deposit',
-        provider,
-      })
-
-      // console.log('tornadoEvents', Object.keys(tornadoEvents).length)
-      if (tornadoEvents[nextDeposit]) {
-        // console.log('Found new event', nextDeposit, tornadoEvents[nextDeposit])
-        depositData.push(tornadoEvents[nextDeposit])
-        fromBlock = tornadoEvents[nextDeposit].block - 1
-        break
-      }
-      fromBlock = toBlock
+    const deposit = depositsCache.filter((dep) => dep.sha3 === nextDeposit)[0]
+    if (!deposit) {
+      console.error(`\nSkipping! There is not related deposit event for the ${i} - ${nextDeposit}\n`)
+    } else {
+      depositData.push(deposit)
     }
+    process.stdout.write('.')
   }
+  process.stdout.write('\n')
   return depositData
 }
 
-async function getWithdrawalData({ tornadoTreesAddress, fromBlock, step, provider, batchSize }) {
+async function getWithdrawalData({ tornadoTreesAddress, provider, batchSize, skip = 0 }) {
+  process.stdout.write('Started getting withdrawals')
   const tornadoTrees = new ethers.Contract(tornadoTreesAddress, tornadoTreesAbi, provider)
-  const lastProcessedWithdrawalLeaf = (await tornadoTrees.lastProcessedWithdrawalLeaf()).toNumber()
+  const lastProcessedWithdrawalLeaf = (await tornadoTrees.lastProcessedWithdrawalLeaf()).toNumber() + skip
   // console.log('lastProcessedWithdrawalLeaf', lastProcessedWithdrawalLeaf)
   const withdrawalData = []
+  const withdrawalsCache = require('./events/withdrawal.json')
   for (let i = lastProcessedWithdrawalLeaf; i < lastProcessedWithdrawalLeaf + batchSize; i++) {
     let nextWithdrawal
     try {
@@ -108,28 +113,15 @@ async function getWithdrawalData({ tornadoTreesAddress, fromBlock, step, provide
       break
     }
 
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const toBlock = Number(fromBlock) + Number(step)
-      // console.log(`getting events from ${fromBlock} to ${toBlock}`)
-      const tornadoEvents = await getTornadoEvents({
-        instances: ethInstances,
-        fromBlock,
-        toBlock,
-        type: 'withdrawal',
-        provider,
-      })
-
-      // console.log('tornadoEvents', Object.keys(tornadoEvents).length)
-      if (tornadoEvents[nextWithdrawal]) {
-        // console.log('Found new event', nextWithdrawal, tornadoEvents[nextWithdrawal])
-        withdrawalData.push(tornadoEvents[nextWithdrawal])
-        fromBlock = tornadoEvents[nextWithdrawal].block - 1
-        break
-      }
-      fromBlock = toBlock
+    const withdrawal = withdrawalsCache.filter((dep) => dep.sha3 === nextWithdrawal)[0]
+    if (!withdrawal) {
+      console.error(`\nSkipping! There is not related withdrawal event for the ${i} - ${nextWithdrawal}\n`)
+    } else {
+      withdrawalData.push(withdrawal)
     }
+    process.stdout.write('.')
   }
+  process.stdout.write('\n')
   return withdrawalData
 }
 
@@ -214,6 +206,8 @@ async function getAccountCommitments({ contract, fromBlock, toBlock, provider })
 module.exports = {
   ethInstances,
   erc20Instances,
+  instances,
+  rates,
   setTime,
   advanceTime,
   takeSnapshot,
