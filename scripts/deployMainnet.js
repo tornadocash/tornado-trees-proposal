@@ -1,9 +1,11 @@
 const { ethers } = require('hardhat')
 
 async function main() {
-  // accounts = await ethers.getSigners()
+  const Verifier = await ethers.getContractFactory('BatchTreeUpdateVerifier')
+  const verifier = await Verifier.deploy({ gasPrice: 100000000000 })
+
   const Proposal = await ethers.getContractFactory('Proposal')
-  const proposal = await Proposal.deploy(/*2574, 7, 2067, 5*/)
+  const proposal = await Proposal.deploy(verifier.address, 21377, 32, 13684, 25, { gasPrice: 100000000000 })
 
   console.log(`Proposal: ${proposal.address}`)
 }

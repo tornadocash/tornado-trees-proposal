@@ -50,8 +50,10 @@ async function getEventCount(addresses, selector, fromBlock) {
 }
 
 task('searchParams', 'Prints optimal search params for tree updates deployment', async () => {
-  const treesAbi = await ethers.getContractFactory('TornadoTrees')
-  const trees = treesAbi.attach('0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417')
+  const trees = await ethers.getContractAt(
+    require('./test/abis/treesV1.json'),
+    '0x43a3bE4Ae954d9869836702AFd10393D3a7Ea417',
+  )
   const processedDeposits = (await trees.lastProcessedDepositLeaf()).toNumber()
   const processedWithdrawals = (await trees.lastProcessedWithdrawalLeaf()).toNumber()
   const unprocessedDeposits = (await trees.getRegisteredDeposits()).length
