@@ -178,7 +178,7 @@ const config = {
     apiKey: process.env.ETHERSCAN_KEY,
   },
   mocha: {
-    timeout: 600000,
+    timeout: 600000000,
   },
 }
 

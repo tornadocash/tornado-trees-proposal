@@ -16,9 +16,6 @@ COPY --from=tornadocash/tornado-trees \
 COPY package.json yarn.lock ./
 RUN yarn && yarn cache clean --force
 
-COPY contracts hardhat.config.js ./
-RUN yarn compile
-
 COPY . .
 COPY --from=tornadocash/tornado-trees /app/artifacts/circuits/BatchTreeUpdateVerifier.sol snarks
 
