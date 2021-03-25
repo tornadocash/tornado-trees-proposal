@@ -2,6 +2,11 @@
 
 This repo deploys governance proposal for [TornadoTrees](https://github.com/tornadocash/tornado-trees) update. It significantly reduces the cost of updating tornado merkle trees by offloading onchain updates to zkSNARKs.
 
+## Audits
+
+- [ABDK](audits/ABDK_proposal_audit.pdf)
+- ZeroPool [1](./audits/ZeroPool_tornado_proxy_audit.pdf) [2](./audits/ZeroPool_tornado_trees_audit.pdf)
+
 ## Dependencies
 
 1. node 12
