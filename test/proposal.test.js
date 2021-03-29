@@ -139,6 +139,7 @@ describe('Proposal', () => {
       ;({ proof, args } = cache)
     }
     const receipt = await tornadoTrees.updateDepositTree(proof, ...args, { gasLimit: 5e6 })
+    console.log('execution took', (await receipt.wait()).gasUsed)
     return receipt
   }
 

@@ -54,6 +54,7 @@ $ docker build . -t tornadocash/tornado-trees-proposal && docker run -v `pwd`/pr
 ### #during voting
 
 1. make sure you have at least 10 ETH for the root-updater
+1. run the old root-updater
 
 ### #after the proposal execution
 
@@ -63,6 +64,10 @@ $ docker build . -t tornadocash/tornado-trees-proposal && docker run -v `pwd`/pr
 1. turn on estimateGas on deposits
 1. use cache events for mining
 1. set notification on index page. "Mining is temporally unavailable"
+
+#### Relayer
+
+1. update tornadoProxy and instances addresses on relayer
 
 #### root updater
 
