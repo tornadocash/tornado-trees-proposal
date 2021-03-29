@@ -55,19 +55,9 @@ $ docker build . -t tornadocash/tornado-trees-proposal && docker run -v `pwd`/pr
 
 1. make sure you have at least 10 ETH for the root-updater
 1. run the old root-updater
+1. update tornadoProxy and instances addresses on relayer
 
 ### #after the proposal execution
-
-#### UI (make it as PR)
-
-1. change tornadoProxy and tornadoTrees addresses
-1. turn on estimateGas on deposits
-1. use cache events for mining
-1. set notification on index page. "Mining is temporally unavailable"
-
-#### Relayer
-
-1. update tornadoProxy and instances addresses on relayer
 
 #### root updater
 
@@ -80,5 +70,16 @@ $ docker build . -t tornadocash/tornado-trees-proposal && docker run -v `pwd`/pr
 - `docker run --rm -e MIGRATION_TYPE=deposit tornadocash/tornado-root-updater`
 - `docker run --rm -e MIGRATION_TYPE=withdrawal tornadocash/tornado-root-updater`
 
-1. after finish, create the `deposits.json` and `withdrawals.json` cache using `allEvents` from `events.js` and move it to the `snark` branch
-1. create the final release on github
+1. update ENS for proxy, trees
+2. after finish, create the `deposits.json` and `withdrawals.json` cache using `allEvents` from `events.js` and move it to the `snark` branch
+3. create the final release on github
+
+#### UI (make it as PR)
+
+1. change tornadoProxy and tornadoTrees addresses (run `node updateENS.js` in UI repo)
+2. set notification on index page. "Mining is temporarily unavailable"
+4. update account events cache
+5. deploy UI
+6. update cache events for mining
+7. remove mining notification
+8. redeploy UI
